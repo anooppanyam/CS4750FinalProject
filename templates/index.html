@@ -39,6 +39,10 @@
 <div class="topnav">
     <a href="/account">account</a>
     <a href="/course">course</a>
+    <a href="{{ url_for('logout') }}">logout</a>
+</div>
+<div style="text-align: center;">
+        Welcome {{ account[1] }}!
 </div>
 <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
   <thead>
@@ -58,6 +62,10 @@
     {% endfor %}
     </tbody>
 </table>
-
+<div style="text-align: center;">
+    <a href={{file}} download>
+        Download as CSV
+    </a>
+</div>
 </body>
 </html>
