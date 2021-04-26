@@ -2,6 +2,7 @@
 from flask import Flask, request, render_template, session, redirect, url_for, Response
 from mysql.connector import connect
 from csv import writer
+from forms import EditAccountForm
 import re
 
 mydb = connect(
@@ -114,6 +115,10 @@ def logout():
    # Redirect to login page
    return redirect(url_for('login'))
 
+@app.route('/')
+def default():
+  return redirect(url_for('account'))
+
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
     # Output message if something goes wrong...
@@ -146,7 +151,6 @@ def register():
     # Show registration form with message (if any)
     return render_template('register.html', msg=msg)
 
-# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
 @app.route('/profile/')
 def profile():
     # Check if user is loggedin
@@ -158,6 +162,28 @@ def profile():
         return render_template('profile.html', account=account)
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
+
+@app.route('/editprofile/', methods=['GET', 'POST'])
+def editprofile():
+  if 'loggedin' in session:
+    form = EditAccountForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            cursor.execute("update accounts set username='%s' , password='%s', email='%s' where id='%s'" % (username,password,email,session['id']))
+            mydb.commit()
+        return redirect('/profile/')
+    else:
+        cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+        account = cursor.fetchone()
+        if account:
+            form.username.data = account[1]
+            form.password.data = account[2]
+            form.email.data = account[3]
+            return render_template('editprofile.html', title='Edit Account', form=form)
+  return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
