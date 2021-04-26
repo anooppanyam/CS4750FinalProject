@@ -2,7 +2,7 @@
 from flask import Flask, request, render_template, session, redirect, url_for, Response
 from mysql.connector import connect
 from csv import writer
-from forms import EditAccountForm
+from app.forms import EditAccountForm
 import re
 
 mydb = connect(
@@ -25,7 +25,7 @@ def account():
     cursor.execute(query)
     data = cursor.fetchall()
     headers = [desc[0] for desc in cursor.description]
-    with open("./data/account.csv", "w") as f:
+    with open("./app/data/account.csv", "w") as f:
       temp = writer(f)
       temp.writerow(headers)
       temp.writerows(data)
@@ -37,7 +37,7 @@ def account():
 @app.route('/accountcsv/')
 def accountcsv():
   if 'loggedin' in session:
-    with open("data/account.csv") as fp:
+    with open("./app/data/account.csv") as fp:
           csv = fp.read()
     return Response(
         csv,
@@ -55,7 +55,7 @@ def course():
     cursor.execute(query)
     data = cursor.fetchall()
     headers = [desc[0] for desc in cursor.description]
-    with open("./data/course.csv", "w") as f:
+    with open("./app/data/course.csv", "w") as f:
       temp = writer(f)
       temp.writerow(headers)
       temp.writerows(data)
@@ -67,7 +67,7 @@ def course():
 @app.route('/coursecsv/')
 def coursecsv():
   if 'loggedin' in session:
-    with open("data/course.csv") as fp:
+    with open("./app/data/course.csv") as fp:
           csv = fp.read()
     return Response(
         csv,
@@ -184,7 +184,4 @@ def editprofile():
             form.email.data = account[3]
             return render_template('editprofile.html', title='Edit Account', form=form)
   return redirect(url_for('login'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
