@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>BatBox'd</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <style>
@@ -42,7 +43,7 @@
     <a href="{{ url_for('logout') }}">logout</a>
 </div>
 <div style="text-align: center;">
-        Welcome {{ account[1] }}!
+        <h1 style="font-size: xx-large;">Welcome {{ account[1] }}!</h1>
 </div>
 <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
   <thead>
