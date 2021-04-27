@@ -7,72 +7,96 @@ import re
 
 mydb = connect(
   host="usersrv01.cs.virginia.edu",
-  user="aas8pgq",
+  user="ap2af",
   passwd="Spr1ng2021!!",
-  database="aas8pgq"
+  database="ap2af_baseball_db"
 )
 
-cursor = mydb.cursor()
+cursor = mydb.cursor(buffered=True)
 
 app = Flask(__name__)
 app.secret_key = 'LBS'
 
+
+############################## PREPARE DOWNLOADABLE CSVs ##############################
+tables = ['people', 'pitching']
+for table in tables:
+  query = ("SELECT * FROM " + table)
+  cursor.execute(query)
+  data = cursor.fetchall()
+  headers = [desc[0] for desc in cursor.description]
+  with open("./app/data/" + table + ".csv", "w") as f:
+          temp = writer(f)
+          temp.writerow(headers)
+          temp.writerows(data)
+
+
 ############################## TABLE 1 ##############################
-@app.route('/account/')
-def account():
+@app.route('/people/', methods=['GET', 'POST'])
+def people():
   if 'loggedin' in session:
-    query = ("SELECT * FROM account")
-    cursor.execute(query)
-    data = cursor.fetchall()
-    headers = [desc[0] for desc in cursor.description]
-    with open("./app/data/account.csv", "w") as f:
-      temp = writer(f)
-      temp.writerow(headers)
-      temp.writerows(data)
-    cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-    account = cursor.fetchone()
-    return render_template('index.html', account=account, data=data, headers=headers, cols=range(len(headers)), file="/accountcsv")
+    if request.method == 'POST':
+      query = 'SELECT * FROM people LIMIT ' + (request.form.get('numrow'))
+      cursor.execute(query)
+      data = cursor.fetchall()
+      headers = [desc[0] for desc in cursor.description]
+      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+      account = cursor.fetchone()
+      return render_template('index.html', nr=request.form.get('numrow'), account=account, data=data, headers=headers, cols=range(len(headers)), file="/peoplecsv")
+    else:
+      query = ("SELECT * FROM people LIMIT 10")
+      cursor.execute(query)
+      data = cursor.fetchall()
+      headers = [desc[0] for desc in cursor.description]
+      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+      account = cursor.fetchone()
+      return render_template('index.html', nr='10', account=account, data=data, headers=headers, cols=range(len(headers)), file="/peoplecsv")
   return redirect(url_for('login'))
 
-@app.route('/accountcsv/')
-def accountcsv():
+@app.route('/peoplecsv/')
+def peoplecsv():
   if 'loggedin' in session:
-    with open("./app/data/account.csv") as fp:
+    with open("./app/data/people.csv") as fp:
           csv = fp.read()
     return Response(
         csv,
         mimetype="text/csv",
-        headers={"Content-disposition":"attachment; filename=data/account.csv"}
+        headers={"Content-disposition":"attachment; filename=data/people.csv"}
     )
   return redirect(url_for('login'))
 
 
 ############################## TABLE 2 ##############################
-@app.route('/course/')
-def course():
+@app.route('/pitching/')
+def pitching():
   if 'loggedin' in session:
-    query = ("SELECT * FROM course")
-    cursor.execute(query)
-    data = cursor.fetchall()
-    headers = [desc[0] for desc in cursor.description]
-    with open("./app/data/course.csv", "w") as f:
-      temp = writer(f)
-      temp.writerow(headers)
-      temp.writerows(data)
-    cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-    account = cursor.fetchone()
-    return render_template('index.html', account=account, data=data, headers=headers, cols=range(len(headers)), file="/coursecsv")
+    if request.method == 'POST':
+      query = 'SELECT * FROM pitching LIMIT ' + (request.form.get('numrow'))
+      cursor.execute(query)
+      data = cursor.fetchall()
+      headers = [desc[0] for desc in cursor.description]
+      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+      account = cursor.fetchone()
+      return render_template('index.html', nr=request.form.get('numrow'), account=account, data=data, headers=headers, cols=range(len(headers)), file="/pitchingcsv")
+    else:
+      query = ("SELECT * FROM pitching LIMIT 10")
+      cursor.execute(query)
+      data = cursor.fetchall()
+      headers = [desc[0] for desc in cursor.description]
+      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+      account = cursor.fetchone()
+      return render_template('index.html', nr='10', account=account, data=data, headers=headers, cols=range(len(headers)), file="/pitchingcsv")
   return redirect(url_for('login'))
 
-@app.route('/coursecsv/')
-def coursecsv():
+@app.route('/pitchingcsv/')
+def pitchingcsv():
   if 'loggedin' in session:
-    with open("./app/data/course.csv") as fp:
+    with open("./app/data/pitching.csv") as fp:
           csv = fp.read()
     return Response(
         csv,
         mimetype="text/csv",
-        headers={"Content-disposition":"attachment; filename=data/course.csv"}
+        headers={"Content-disposition":"attachment; filename=data/pitching.csv"}
     )
   return redirect(url_for('login'))
 
@@ -99,7 +123,7 @@ def login():
             session['id'] = account[0]
             session['username'] = account[1]
             # Redirect to home page
-            return redirect(url_for('account'))
+            return redirect(url_for('people'))
         else:
             # Account doesnt exist or username/password incorrect
             msg = 'Incorrect username/password!'
@@ -117,7 +141,7 @@ def logout():
 
 @app.route('/')
 def default():
-  return redirect(url_for('account'))
+  return redirect(url_for('people'))
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -182,6 +206,6 @@ def editprofile():
             form.username.data = account[1]
             form.password.data = account[2]
             form.email.data = account[3]
-            return render_template('editprofile.html', title='Edit Account', form=form)
+        return render_template('editprofile.html', title='Edit Account', form=form)
   return redirect(url_for('login'))
 
