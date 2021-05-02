@@ -46,15 +46,14 @@
 <div style="text-align: center;">
         <h1 style="font-size: xx-large;">Welcome {{ account[1] }}!</h1>
 </div>
-<form method="POST" action="{{ url_for('people') }}">
-<label>Number of rows:</label>
-<select name="numrow">
-    <option selected="selected" disabled hidden>{{nr}}</option>
-    <option value="10">10</option>
-    <option value="20">20</option>
-</select>
-<input type="submit">
+
+<form method="POST">
+    <div style="text-align: center;">
+    <button name='left' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>&#60;&#60;</button>
+    <button name='right' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>>></button>
+</div>
 </form>
+
 <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
   <thead>
     <tr>
