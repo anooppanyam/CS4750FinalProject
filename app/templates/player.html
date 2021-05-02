@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Profile</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+	</head>
+	<body class="loggedin">
+		<style>
+			body {
+				margin: 0;
+				font-family: Arial, Helvetica, sans-serif;
+			}
+			/* Navbar container */
+            .navbar {
+            overflow: hidden;
+            background-color: #333;
+            font-family: Arial;
+            }
+
+            /* Links inside the navbar */
+            .navbar a {
+            float: left;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            }
+
+            /* The dropdown container */
+            .dropdown {
+            float: left;
+            overflow: hidden;
+            }
+
+            /* Dropdown button */
+            .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit; /* Important for vertical align on mobile phones */
+            margin: 0; /* Important for vertical align on mobile phones */
+            }
+
+            /* Add a red background color to navbar links on hover */
+            .navbar a:hover, .dropdown:hover .dropbtn {
+            background-color: grey;
+            }
+
+            /* Dropdown content (hidden by default) */
+            .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            }
+
+            /* Add a grey background color to dropdown links on hover */
+            .dropdown-content a:hover {
+            background-color: #ddd;
+            }
+
+            /* Show the dropdown menu on hover */
+            .dropdown:hover .dropdown-content {
+            display: block;
+            }
+            td {
+                width: 150px;
+                text-align: center;
+                border: 1px solid black;
+                padding: 5px;
+            }
+		</style>
+		<div class="navbar">
+            <div class="dropdown">
+            <button class="dropbtn">Raw Data
+            </button>
+            <div class="dropdown-content">
+                <a href="/people">People</a>
+                <a href="/pitching">Pitching</a>
+                <a href="/batting">Bat</a>
+                <a href="/fielding">Fielder</a>
+                <a href="/allstarfull">AllStarFull</a>
+                <a href="/halloffame">HOF</a>
+                <a href="/battingpost">BatPost</a>
+                <a href="/pitchingpost">PitchingPost</a>
+                <a href="/awardsplayers">AwardsPlayers</a>
+                <a href="/fieldingpost">FielderPost</a>
+                <a href="/appearances">Appearances</a>
+                <a href="/teams">Teams</a>
+                <a href="/leagues">Leagues</a>
+                <a href="/divisions">Divisions</a>
+            </div>
+            </div>
+            <a href="/profile">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+		<div style="text-align: center;">
+			<h2>{{player}}'s' Page</h2>
+            <form method="POST">
+                <div style="text-align: center;">
+                <button name='left' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>&#60;&#60;</button>
+                <button name='right' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>>></button>
+            </div>
+            </form>
+			<div>
+                {% if people %}
+				<p>People:</p>
+				<table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                    <thead>
+                      <tr>
+                          {% for col in people_headers %}
+                          <th>{{col}}</th>
+                          {% endfor %}
+                      </tr>
+                      </thead>    
+                      <tbody>
+                       {% for row in people %}
+                              <tr>
+                                  {% for i in cols %}
+                                  <td>{{row[i]}}</td>
+                                  {% endfor %}
+                              </tr>
+                      {% endfor %}
+                      </tbody>
+                  </table>
+                  {% endif %}
+
+                  {% if pitch %}
+                <p>Pitching:</p>
+				<table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                    <thead>
+                      <tr>
+                          {% for col in pitch_headers %}
+                          <th>{{col}}</th>
+                          {% endfor %}
+                      </tr>
+                      </thead>    
+                      <tbody>
+                       {% for row in pitch %}
+                              <tr>
+                                  {% for i in cols %}
+                                  <td>{{row[i]}}</td>
+                                  {% endfor %}
+                              </tr>
+                      {% endfor %}
+                      </tbody>
+                  </table>
+                  {% endif %}
+                  
+                  {% if batting %}
+                  <p>Batting:</p>
+				<table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                    <thead>
+                      <tr>
+                          {% for col in batting_headers %}
+                          <th>{{col}}</th>
+                          {% endfor %}
+                      </tr>
+                      </thead>    
+                      <tbody>
+                       {% for row in batting %}
+                              <tr>
+                                  {% for i in cols %}
+                                  <td>{{row[i]}}</td>
+                                  {% endfor %}
+                              </tr>
+                      {% endfor %}
+                      </tbody>
+                  </table>
+                  {% endif %}
+
+                  {% if fielding %}
+                  <p>Fielding:</p>
+                  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                      <thead>
+                        <tr>
+                            {% for col in fielding_headers %}
+                            <th>{{col}}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>    
+                        <tbody>
+                         {% for row in fielding %}
+                                <tr>
+                                    {% for i in cols %}
+                                    <td>{{row[i]}}</td>
+                                    {% endfor %}
+                                </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+  
+                    {% if allstarfull %}
+                    <p>Allstarfull:</p>
+                    <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                        <thead>
+                          <tr>
+                              {% for col in allstarfull_headers %}
+                              <th>{{col}}</th>
+                              {% endfor %}
+                          </tr>
+                          </thead>    
+                          <tbody>
+                           {% for row in allstarfull %}
+                                  <tr>
+                                      {% for i in cols %}
+                                      <td>{{row[i]}}</td>
+                                      {% endfor %}
+                                  </tr>
+                          {% endfor %}
+                          </tbody>
+                      </table>
+                      {% endif %}
+    
+                      {% if halloffame %}
+                      <p>HOF:</p>
+                      <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                          <thead>
+                            <tr>
+                                {% for col in halloffame_headers %}
+                                <th>{{col}}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>    
+                            <tbody>
+                             {% for row in halloffame %}
+                                    <tr>
+                                        {% for i in cols %}
+                                        <td>{{row[i]}}</td>
+                                        {% endfor %}
+                                    </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% endif %}
+      
+                        {% if battingpost %}
+                        <p>BattingPost:</p>
+                        <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                            <thead>
+                              <tr>
+                                  {% for col in battingpost_headers %}
+                                  <th>{{col}}</th>
+                                  {% endfor %}
+                              </tr>
+                              </thead>    
+                              <tbody>
+                               {% for row in battingpost %}
+                                      <tr>
+                                          {% for i in cols %}
+                                          <td>{{row[i]}}</td>
+                                          {% endfor %}
+                                      </tr>
+                              {% endfor %}
+                              </tbody>
+                          </table>
+                          {% endif %}
+        
+                          {% if pitchingpost %}
+                          <p>PitchingPost:</p>
+                          <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                              <thead>
+                                <tr>
+                                    {% for col in pitchingpost_headers %}
+                                    <th>{{col}}</th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>    
+                                <tbody>
+                                 {% for row in pitchingpost %}
+                                        <tr>
+                                            {% for i in cols %}
+                                            <td>{{row[i]}}</td>
+                                            {% endfor %}
+                                        </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            {% endif %}
+          
+                            {% if awardsplayers %}
+                            <p>AwardsPlayers:</p>
+                            <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                                <thead>
+                                  <tr>
+                                      {% for col in awardsplayers_headers %}
+                                      <th>{{col}}</th>
+                                      {% endfor %}
+                                  </tr>
+                                  </thead>    
+                                  <tbody>
+                                   {% for row in awardsplayers %}
+                                          <tr>
+                                              {% for i in cols %}
+                                              <td>{{row[i]}}</td>
+                                              {% endfor %}
+                                          </tr>
+                                  {% endfor %}
+                                  </tbody>
+                              </table>
+                              {% endif %}
+            
+                              {% if fieldingpost %}
+                              <p>FieldingPost:</p>
+                              <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                                  <thead>
+                                    <tr>
+                                        {% for col in fieldingpost_headers %}
+                                        <th>{{col}}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>    
+                                    <tbody>
+                                     {% for row in fieldingpost %}
+                                            <tr>
+                                                {% for i in cols %}
+                                                <td>{{row[i]}}</td>
+                                                {% endfor %}
+                                            </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+
+                                {% if appearances %}
+                                <p>Appearances:</p>
+                                <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
+                                    <thead>
+                                      <tr>
+                                          {% for col in appearances_headers %}
+                                          <th>{{col}}</th>
+                                          {% endfor %}
+                                      </tr>
+                                      </thead>    
+                                      <tbody>
+                                       {% for row in appearances %}
+                                              <tr>
+                                                  {% for i in cols %}
+                                                  <td>{{row[i]}}</td>
+                                                  {% endfor %}
+                                              </tr>
+                                      {% endfor %}
+                                      </tbody>
+                                  </table>   
+                                  {% endif %}                                                                                                       
+			</div>
+		</div>
+
+	</body>
+</html>
