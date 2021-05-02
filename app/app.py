@@ -31,27 +31,37 @@ for table in tables:
           temp.writerows(data)
 
 
+def displayTable(table):
+  print("working")
+  if 'loggedin' in session:
+    if request.method == 'POST':
+      print("POSt", table, request.form.get('right'))
+      query = "SELECT * FROM %s LIMIT 30" % (table)
+      cursor.execute(query)
+      data = cursor.fetchall()
+      headers = [desc[0] for desc in cursor.description]
+      if request.form.get('right'):
+        ncol = min(len(headers), int(request.form.get('right'))+8)
+      elif request.form.get('left'):
+        ncol = max(8, int(request.form.get('left'))-8)
+      else:
+        ncol = 8
+    else:
+      query = "SELECT * FROM %s LIMIT 30" % (table)
+      cursor.execute(query)
+      data = cursor.fetchall()
+      headers = [desc[0] for desc in cursor.description]
+      ncol = 8
+    cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+    account = cursor.fetchone()
+    return render_template('index.html', nc=ncol, account=account, data=data, headers=headers[ncol-8:ncol], cols=range(len(headers))[ncol-8:ncol], file="/" + table + "csv")
+  return redirect(url_for('login'))
+
+
 ############################## TABLE 1 ##############################
 @app.route('/people/', methods=['GET', 'POST'])
 def people():
-  if 'loggedin' in session:
-    if request.method == 'POST':
-      query = 'SELECT * FROM people LIMIT ' + (request.form.get('numrow'))
-      cursor.execute(query)
-      data = cursor.fetchall()
-      headers = [desc[0] for desc in cursor.description]
-      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-      account = cursor.fetchone()
-      return render_template('index.html', nr=request.form.get('numrow'), account=account, data=data, headers=headers, cols=range(len(headers)), file="/peoplecsv")
-    else:
-      query = ("SELECT * FROM people LIMIT 10")
-      cursor.execute(query)
-      data = cursor.fetchall()
-      headers = [desc[0] for desc in cursor.description]
-      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-      account = cursor.fetchone()
-      return render_template('index.html', nr='10', account=account, data=data, headers=headers, cols=range(len(headers)), file="/peoplecsv")
-  return redirect(url_for('login'))
+  return displayTable('people')
 
 @app.route('/peoplecsv/')
 def peoplecsv():
@@ -67,26 +77,9 @@ def peoplecsv():
 
 
 ############################## TABLE 2 ##############################
-@app.route('/pitching/')
+@app.route('/pitching/', methods=['GET', 'POST'])
 def pitching():
-  if 'loggedin' in session:
-    if request.method == 'POST':
-      query = 'SELECT * FROM pitching LIMIT ' + (request.form.get('numrow'))
-      cursor.execute(query)
-      data = cursor.fetchall()
-      headers = [desc[0] for desc in cursor.description]
-      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-      account = cursor.fetchone()
-      return render_template('index.html', nr=request.form.get('numrow'), account=account, data=data, headers=headers, cols=range(len(headers)), file="/pitchingcsv")
-    else:
-      query = ("SELECT * FROM pitching LIMIT 10")
-      cursor.execute(query)
-      data = cursor.fetchall()
-      headers = [desc[0] for desc in cursor.description]
-      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-      account = cursor.fetchone()
-      return render_template('index.html', nr='10', account=account, data=data, headers=headers, cols=range(len(headers)), file="/pitchingcsv")
-  return redirect(url_for('login'))
+  return displayTable('pitching')
 
 @app.route('/pitchingcsv/')
 def pitchingcsv():
