@@ -164,8 +164,10 @@
 	           {% for row in data %}
 	                  <tr>
 	                      {% for i in cols %}
-	                      	var link = 
+                            {%if i == 0%}
 	                      	<td><a href="http://127.0.0.1:5000/player/{{row[0]}}">{{row[i]}}</a></td>
+                            {%endif%}
+                            <td>{{row[i]}}</td>
 	                      {% endfor %}
 	                  </tr>
 	          {% endfor %}
