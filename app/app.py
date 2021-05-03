@@ -547,20 +547,28 @@ def search_player():
   #name = request.args.get('query')
   query = request.args.get('query')
   orderby = request.args.get('orderby')
+  table = request.args.get('table')
+
+  cmd = """SELECT * from career_pitching_saber WHERE Full_Name LIKE %s"""
+  if(table == 'Pitching'):
+    cmd == """SELECT * from career_pitching_saber WHERE Full_Name LIKE %s"""
+  elif(table == 'Batting'):
+    cmd = """SELECT * from career_batting_saber WHERE Full_Name LIKE %s"""
 
   if query is None:
     query = ''
-  
+
   name = ('%%' + query + '%%').lower()
 
-  cmd = """SELECT * from ST638_Player_History WHERE Full_Name LIKE %s"""
+  if orderby is None or orderby == 'None' or orderby == '':
+    orderby = 'playerID'
   
   if orderby is not None and orderby != 'None':
       cmd = cmd + ' ORDER BY ' + orderby + ' DESC LIMIT 10' 
   else:
       cmd = cmd + ' LIMIT 10' 
 
-  print(name, cmd)
+  #print(name, cmd)
   
   
   cursor.execute(cmd, (name, ))
@@ -570,8 +578,13 @@ def search_player():
   result = []
   for item in cursor:
       result.append(item)
-  print(result)
 
-  context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby, data_header = search_headers) ##Code addition
+  if len(result) == 0:
+      context = dict(message='Player not found you stupid fuck') 
+  else:
+      context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby, data_header = search_headers) ##Code addition
+
+  #print(result)
+
   return render_template('search-player.html', **context)
 

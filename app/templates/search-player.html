@@ -93,37 +93,32 @@
             .scrollmenu { overflow-x: scroll; }
 		</style>
 
-	<div class="row1" style="background-color: black; padding-left: 750; height: 300">
+	<div class="row1" style="background-color: black; padding-left: 750; height: 100">
 	    <div class="row" style="color: white;">
 	        <h1 class="center" style="font-size: 40">Player Search</h1>
 	    </div>
-	    <div class="row" style="background-color: black">
-	        <form method="get" action="/search-player">
-	            <label for="query" style="color: white">Search player here:</label>
-	            <input name="query" type="text" value="{{ query }}"> <input class="btn btn-danger" type="submit"
-	                value="Search">
-	        </form>
-	    </div>
-	    <div class="row" style="background-color: black">
-	        <p style="color: white">Order by: </p>
-	        <div class="row" style="background-color: black">
-		        <form method="get" action="/search-player"">
-		        <input type="hidden" name="query" value="{{ query }}" />
-		        <input type="hidden" name="orderby" value="Career_BA" />
-		        <button type="submit" class="btn-outline-danger">BA</button>
-		        </form>
-		        <form method="get" action="/search-player"">
-		        <input type="hidden" name="query" value="{{ query }}" />
-		        <input type="hidden" name="orderby" value="Avg_ERA" />
-		        <button type="submit" class="btn-outline-danger">ERA</button>
-		        </form>
-		        <form method="get" action="/search-player"">
-		        <input type="hidden" name="query" value="{{ query }}" />
-		        <input type="hidden" name="orderby" value="Player_Awards" />
-		        <button type="submit" class="btn-outline-danger">Awards</button>
-		        </form>
-		    </div>
-	    </div>
+    </div>
+    <div class="row1" style="background-color: black; padding-left: 700; height: 200">
+       <form method="get" action="/search-player">
+            <div style="height: 40">
+                <label for="table" style="color: white">Choose a table:</label>
+                <input type="radio" id="table" name="table" value="Pitching">
+                <label for="Pitching" style="color: white">Pitching</label>
+                <input type="radio" id="table" name="table" value="Batting">
+                <label for="Batting" style="color: white">Batting</label>
+            </div>
+            <div style="height: 40">
+                <label for="query" style="color: white">Search player here:</label>
+                <input name="query" type="text" value="{{ query }}">
+            </div>
+            <div style="height: 40">
+                <label for="orderby" style="color: white">Order Here: </label>
+                <input name="orderby" type="text" value="{{ orderby }}">  
+            </div>
+            <input class="btn btn-danger" type="submit" value="Submit">
+            </form>
+    </div>
+	    
 	</div>
 
     <!-- <div class="row">
@@ -164,16 +159,23 @@
 	           {% for row in data %}
 	                  <tr>
 	                      {% for i in cols %}
-                            {%if i == 0%}
-	                      	<td><a href="http://127.0.0.1:5000/player/{{row[0]}}">{{row[i]}}</a></td>
+                            {%if i == 1%}
+	                      	<td><a href="http://127.0.0.1:5000/player/{{row[1]}}">{{row[i]}}</a></td>
                             {%endif%}
+                            {%if i != 1%}
                             <td>{{row[i]}}</td>
+                            {%endif%}
 	                      {% endfor %}
 	                  </tr>
 	          {% endfor %}
 	          </tbody>
 	    </table>
 	</div>
+    </div>
+    {%endif%}
+    {%if message%}
+    <div class="row" style="background-color: black; height: 900"> 
+        <p style="color: white">{{message}}</p>
     </div>
     {%endif%}
 </div>
