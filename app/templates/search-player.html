@@ -1,34 +1,131 @@
 {% block content %}
-<div class="container-fluid p-4">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+	
+	<style>
+			body {
+				margin: 0;
+				font-family: Arial, Helvetica, sans-serif;
+			}
+			/* Navbar container */
+            .navbar {
+            overflow: hidden;
+            background-color: #333;
+            font-family: Arial;
+            }
 
-    <div class="row">
-        <h1>Player Search</h1>
-    </div>
-    <div class="row">
-        <form method="get" action="/search-player">
-            <label for="query">Search player here:</label>
-            <input name="query" type="text" value="{{ query }}"> <input class="btn btn-danger" type="submit"
-                value="Search">
-        </form>
-    </div>
-    <div class="row">
-        <p>Order by: </p>
-        <form method="get" action="/search-player"">
-        <input type="hidden" name="query" value="{{ query }}" />
-        <input type="hidden" name="orderby" value="Career_BA" />
-        <button type="submit" class="btn-outline-danger">BA</button>
-        </form>
-        <form method="get" action="/search-player"">
-        <input type="hidden" name="query" value="{{ query }}" />
-        <input type="hidden" name="orderby" value="Avg_ERA" />
-        <button type="submit" class="btn-outline-danger">ERA</button>
-        </form>
-        <form method="get" action="/search-player"">
-        <input type="hidden" name="query" value="{{ query }}" />
-        <input type="hidden" name="orderby" value="Player_Awards" />
-        <button type="submit" class="btn-outline-danger">Awards</button>
-        </form>
-    </div>
+            /* Links inside the navbar */
+            .navbar a {
+            float: left;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            }
+
+            /* The dropdown container */
+            .dropdown {
+            float: left;
+            overflow: hidden;
+            }
+
+            /* Dropdown button */
+            .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit; /* Important for vertical align on mobile phones */
+            margin: 0; /* Important for vertical align on mobile phones */
+            }
+
+            /* Add a red background color to navbar links on hover */
+            .navbar a:hover, .dropdown:hover .dropbtn {
+            background-color: grey;
+            }
+
+            /* Dropdown content (hidden by default) */
+            .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            }
+
+            /* Add a grey background color to dropdown links on hover */
+            .dropdown-content a:hover {
+            background-color: #ddd;
+            }
+
+            /* Show the dropdown menu on hover */
+            .dropdown:hover .dropdown-content {
+            display: block;
+            }
+            td {
+                width: 150px;
+                text-align: center;
+                border: 1px solid white;
+                padding: 5px;
+                color: white;
+            }
+            th {
+                width: 150px;
+                text-align: center;
+                border: 1px solid white;
+                padding: 5px;
+                color: white;
+            }
+            .scrollmenu { overflow-x: scroll; }
+		</style>
+
+	<div class="row1" style="background-color: black; padding-left: 750; height: 300">
+	    <div class="row" style="color: white;">
+	        <h1 class="center" style="font-size: 40">Player Search</h1>
+	    </div>
+	    <div class="row" style="background-color: black">
+	        <form method="get" action="/search-player">
+	            <label for="query" style="color: white">Search player here:</label>
+	            <input name="query" type="text" value="{{ query }}"> <input class="btn btn-danger" type="submit"
+	                value="Search">
+	        </form>
+	    </div>
+	    <div class="row" style="background-color: black">
+	        <p style="color: white">Order by: </p>
+	        <div class="row" style="background-color: black">
+		        <form method="get" action="/search-player"">
+		        <input type="hidden" name="query" value="{{ query }}" />
+		        <input type="hidden" name="orderby" value="Career_BA" />
+		        <button type="submit" class="btn-outline-danger">BA</button>
+		        </form>
+		        <form method="get" action="/search-player"">
+		        <input type="hidden" name="query" value="{{ query }}" />
+		        <input type="hidden" name="orderby" value="Avg_ERA" />
+		        <button type="submit" class="btn-outline-danger">ERA</button>
+		        </form>
+		        <form method="get" action="/search-player"">
+		        <input type="hidden" name="query" value="{{ query }}" />
+		        <input type="hidden" name="orderby" value="Player_Awards" />
+		        <button type="submit" class="btn-outline-danger">Awards</button>
+		        </form>
+		    </div>
+	    </div>
+	</div>
+
     <!-- <div class="row">
         <table class="table">
             <thead class="thead-dark">
@@ -52,16 +149,30 @@
             </tbody>
         </table>
     </div> -->
-    <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
-          <tbody>
-           {% for row in data %}
-                  <tr>
-                      {% for i in cols %}
-                      <td>{{row[i]}}</td>
-                      {% endfor %}
-                  </tr>
-          {% endfor %}
-          </tbody>
-      </table>
+    {%if data%}
+    <div class="row" style="background-color: black; height: 900"> 
+    <div class="scrollmenu">
+	    <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+	    	  <thead>
+	            <tr>
+	              {% for i in data_header %}
+	              <th>{{i}}</th>
+	              {% endfor %}
+	            </tr>
+	          </thead>    
+	          <tbody>
+	           {% for row in data %}
+	                  <tr>
+	                      {% for i in cols %}
+	                      	var link = 
+	                      	<td><a href="http://127.0.0.1:5000/player/{{row[0]}}">{{row[i]}}</a></td>
+	                      {% endfor %}
+	                  </tr>
+	          {% endfor %}
+	          </tbody>
+	    </table>
+	</div>
+    </div>
+    {%endif%}
 </div>
 {% endblock %}

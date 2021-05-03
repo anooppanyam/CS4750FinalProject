@@ -564,12 +564,14 @@ def search_player():
   
   
   cursor.execute(cmd, (name, ))
-  
+  ##Code Addition
+  search_headers = [desc[0] for desc in cursor.description]
+
   result = []
   for item in cursor:
       result.append(item)
   print(result)
 
-
-  context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby)
+  context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby, data_header = search_headers) ##Code addition
   return render_template('search-player.html', **context)
+
