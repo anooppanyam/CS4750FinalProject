@@ -1,0 +1,67 @@
+{% block content %}
+<div class="container-fluid p-4">
+
+    <div class="row">
+        <h1>Player Search</h1>
+    </div>
+    <div class="row">
+        <form method="get" action="/search-player">
+            <label for="query">Search player here:</label>
+            <input name="query" type="text" value="{{ query }}"> <input class="btn btn-danger" type="submit"
+                value="Search">
+        </form>
+    </div>
+    <div class="row">
+        <p>Order by: </p>
+        <form method="get" action="/search-player"">
+        <input type="hidden" name="query" value="{{ query }}" />
+        <input type="hidden" name="orderby" value="Career_BA" />
+        <button type="submit" class="btn-outline-danger">BA</button>
+        </form>
+        <form method="get" action="/search-player"">
+        <input type="hidden" name="query" value="{{ query }}" />
+        <input type="hidden" name="orderby" value="Avg_ERA" />
+        <button type="submit" class="btn-outline-danger">ERA</button>
+        </form>
+        <form method="get" action="/search-player"">
+        <input type="hidden" name="query" value="{{ query }}" />
+        <input type="hidden" name="orderby" value="Player_Awards" />
+        <button type="submit" class="btn-outline-danger">Awards</button>
+        </form>
+    </div>
+    <!-- <div class="row">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Team</th>
+                    <th scope="col">BA</th>
+                    <th scope="col">ERA</th>
+                    <th scope="col">Avg Sal</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in data %}
+                <tr>
+                    <td>{{ n['Full_Name']}}</td>
+                    <td>{{ n['Last_TeamID'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div> -->
+    <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+          <tbody>
+           {% for row in data %}
+                  <tr>
+                      {% for i in cols %}
+                      <td>{{row[i]}}</td>
+                      {% endfor %}
+                  </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+</div>
+{% endblock %}

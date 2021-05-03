@@ -9,7 +9,7 @@ mydb = connect(
   host="usersrv01.cs.virginia.edu",
   user="ss9ae",
   passwd="Spring2020!!!",
-  database="ss9ae_baseball_db"
+  database="ss9ae"
 )
 
 cursor = mydb.cursor(buffered=True)
@@ -540,3 +540,36 @@ def player(playerid):
         )
   return redirect(url_for('login'))
 
+@app.route('/search-player/')
+def search_player():
+  if not 'loggedin' in session:
+    return redirect(url_for('login'))
+  #name = request.args.get('query')
+  query = request.args.get('query')
+  orderby = request.args.get('orderby')
+
+  if query is None:
+    query = ''
+  
+  name = ('%%' + query + '%%').lower()
+
+  cmd = """SELECT * from ST638_Player_History WHERE Full_Name LIKE %s"""
+  
+  if orderby is not None and orderby != 'None':
+      cmd = cmd + ' ORDER BY ' + orderby + ' DESC LIMIT 10' 
+  else:
+      cmd = cmd + ' LIMIT 10' 
+
+  print(name, cmd)
+  
+  
+  cursor.execute(cmd, (name, ))
+  
+  result = []
+  for item in cursor:
+      result.append(item)
+  print(result)
+
+
+  context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby)
+  return render_template('search-player.html', **context)
