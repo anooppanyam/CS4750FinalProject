@@ -9,7 +9,7 @@ mydb = connect(
   host="usersrv01.cs.virginia.edu",
   user="ss9ae",
   passwd="Spring2020!!!",
-  database="ss9ae_baseball_db"
+  database="ss9ae"
 )
 
 cursor = mydb.cursor(buffered=True)
@@ -539,4 +539,52 @@ def player(playerid):
           appearances=appearances_info, appearances_headers=appearances_headers[ncol-3:ncol],
         )
   return redirect(url_for('login'))
+
+@app.route('/search-player/')
+def search_player():
+  if not 'loggedin' in session:
+    return redirect(url_for('login'))
+  #name = request.args.get('query')
+  query = request.args.get('query')
+  orderby = request.args.get('orderby')
+  table = request.args.get('table')
+
+  cmd = """SELECT * from career_pitching_saber WHERE Full_Name LIKE %s"""
+  if(table == 'Pitching'):
+    cmd == """SELECT * from career_pitching_saber WHERE Full_Name LIKE %s"""
+  elif(table == 'Batting'):
+    cmd = """SELECT * from career_batting_saber WHERE Full_Name LIKE %s"""
+
+  if query is None:
+    query = ''
+
+  name = ('%%' + query + '%%').lower()
+
+  if orderby is None or orderby == 'None' or orderby == '':
+    orderby = 'playerID'
+  
+  if orderby is not None and orderby != 'None':
+      cmd = cmd + ' ORDER BY ' + orderby + ' DESC LIMIT 10' 
+  else:
+      cmd = cmd + ' LIMIT 10' 
+
+  #print(name, cmd)
+  
+  
+  cursor.execute(cmd, (name, ))
+  ##Code Addition
+  search_headers = [desc[0] for desc in cursor.description]
+
+  result = []
+  for item in cursor:
+      result.append(item)
+
+  if len(result) == 0:
+      context = dict(message='Player not found you stupid fuck') 
+  else:
+      context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby, data_header = search_headers) ##Code addition
+
+  #print(result)
+
+  return render_template('search-player.html', **context)
 

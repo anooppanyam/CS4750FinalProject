@@ -1,0 +1,182 @@
+{% block content %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+	
+	<style>
+			body {
+				margin: 0;
+				font-family: Arial, Helvetica, sans-serif;
+			}
+			/* Navbar container */
+            .navbar {
+            overflow: hidden;
+            background-color: #333;
+            font-family: Arial;
+            }
+
+            /* Links inside the navbar */
+            .navbar a {
+            float: left;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            }
+
+            /* The dropdown container */
+            .dropdown {
+            float: left;
+            overflow: hidden;
+            }
+
+            /* Dropdown button */
+            .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit; /* Important for vertical align on mobile phones */
+            margin: 0; /* Important for vertical align on mobile phones */
+            }
+
+            /* Add a red background color to navbar links on hover */
+            .navbar a:hover, .dropdown:hover .dropbtn {
+            background-color: grey;
+            }
+
+            /* Dropdown content (hidden by default) */
+            .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            }
+
+            /* Add a grey background color to dropdown links on hover */
+            .dropdown-content a:hover {
+            background-color: #ddd;
+            }
+
+            /* Show the dropdown menu on hover */
+            .dropdown:hover .dropdown-content {
+            display: block;
+            }
+            td {
+                width: 150px;
+                text-align: center;
+                border: 1px solid white;
+                padding: 5px;
+                color: white;
+            }
+            th {
+                width: 150px;
+                text-align: center;
+                border: 1px solid white;
+                padding: 5px;
+                color: white;
+            }
+            .scrollmenu { overflow-x: scroll; }
+		</style>
+
+	<div class="row1" style="background-color: black; padding-left: 750; height: 100">
+	    <div class="row" style="color: white;">
+	        <h1 class="center" style="font-size: 40">Player Search</h1>
+	    </div>
+    </div>
+    <div class="row1" style="background-color: black; padding-left: 700; height: 200">
+       <form method="get" action="/search-player">
+            <div style="height: 40">
+                <label for="table" style="color: white">Choose a table:</label>
+                <input type="radio" id="table" name="table" value="Pitching">
+                <label for="Pitching" style="color: white">Pitching</label>
+                <input type="radio" id="table" name="table" value="Batting">
+                <label for="Batting" style="color: white">Batting</label>
+            </div>
+            <div style="height: 40">
+                <label for="query" style="color: white">Search player here:</label>
+                <input name="query" type="text" value="{{ query }}">
+            </div>
+            <div style="height: 40">
+                <label for="orderby" style="color: white">Order Here: </label>
+                <input name="orderby" type="text" value="{{ orderby }}">  
+            </div>
+            <input class="btn btn-danger" type="submit" value="Submit">
+            </form>
+    </div>
+	    
+	</div>
+
+    <!-- <div class="row">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Team</th>
+                    <th scope="col">BA</th>
+                    <th scope="col">ERA</th>
+                    <th scope="col">Avg Sal</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in data %}
+                <tr>
+                    <td>{{ n['Full_Name']}}</td>
+                    <td>{{ n['Last_TeamID'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div> -->
+    {%if data%}
+    <div class="row" style="background-color: black; height: 900"> 
+    <div class="scrollmenu">
+	    <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+	    	  <thead>
+	            <tr>
+	              {% for i in data_header %}
+	              <th>{{i}}</th>
+	              {% endfor %}
+	            </tr>
+	          </thead>    
+	          <tbody>
+	           {% for row in data %}
+	                  <tr>
+	                      {% for i in cols %}
+                            {%if i == 1%}
+	                      	<td><a href="http://127.0.0.1:5000/player/{{row[1]}}">{{row[i]}}</a></td>
+                            {%endif%}
+                            {%if i != 1%}
+                            <td>{{row[i]}}</td>
+                            {%endif%}
+	                      {% endfor %}
+	                  </tr>
+	          {% endfor %}
+	          </tbody>
+	    </table>
+	</div>
+    </div>
+    {%endif%}
+    {%if message%}
+    <div class="row" style="background-color: black; height: 900"> 
+        <p style="color: white">{{message}}</p>
+    </div>
+    {%endif%}
+</div>
+{% endblock %}
