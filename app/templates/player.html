@@ -87,6 +87,7 @@
                 border: 1px solid black;
                 padding: 5px;
             }
+            .scrollmenu { overflow-x: scroll; }
 		</style>
 		<div class="navbar">
             <div class="dropdown">
@@ -114,101 +115,304 @@
         </div>
 		<div style="text-align: center;">
 			<h2>{{player}}'s' Page</h2>
-            <form method="POST">
-                <div style="text-align: center;">
-                <button name='left' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>&#60;&#60;</button>
-                <button name='right' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>>></button>
-            </div>
-            </form>
-			<div>
-                {% if people %}
-				<p>People:</p>
-				<table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
-                    <thead>
-                      <tr>
-                          {% for col in people_headers %}
-                          <th>{{col}}</th>
-                          {% endfor %}
-                      </tr>
-                    </thead>    
-                      <tbody>
-                       {% for row in people %}
-                              <tr>
-                                  {% for i in cols %}
-                                  <td>{{row[i]}}</td>
-                                  {% endfor %}
-                              </tr>
-                      {% endfor %}
-                      </tbody>
-                  </table>
-                  {% endif %}
+            
+    {% if people %}
+    <p>People Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in people_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in people %}
+                <tr>
+                    {% for i in peoplelen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
 
-                  {% if pitch %}
-                <p>Pitching:</p>
-				<table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
-                    <thead>
-                      <tr>
-                          {% for col in pitch_headers %}
-                          <th>{{col}}</th>
-                          {% endfor %}
-                      </tr>
-                      </thead>    
-                      <tbody>
-                       {% for row in pitch %}
-                              <tr>
-                                  {% for i in cols %}
-                                  <td>{{row[i]}}</td>
-                                  {% endfor %}
-                              </tr>
-                      {% endfor %}
-                      </tbody>
-                  </table>
-                  {% endif %}
-                  
-                  {% if batting %}
-                  <p>Batting:</p>
-				<table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
-                    <thead>
-                      <tr>
-                          {% for col in batting_headers %}
-                          <th>{{col}}</th>
-                          {% endfor %}
-                      </tr>
-                      </thead>    
-                      <tbody>
-                       {% for row in batting %}
-                              <tr>
-                                  {% for i in cols %}
-                                  <td>{{row[i]}}</td>
-                                  {% endfor %}
-                              </tr>
-                      {% endfor %}
-                      </tbody>
-                  </table>
-                  {% endif %}
+    {% if pitch %}
+    <p>Pitch Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in pitch_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in pitch %}
+                <tr>
+                    {% for i in pitchlen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
 
-                  {% if fielding %}
-                  <p>Fielding:</p>
-                  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
-                      <thead>
-                        <tr>
-                            {% for col in fielding_headers %}
-                            <th>{{col}}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>    
-                        <tbody>
-                         {% for row in fielding %}
-                                <tr>
-                                    {% for i in cols %}
-                                    <td>{{row[i]}}</td>
-                                    {% endfor %}
-                                </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {% endif %}
-  
+
+     {% if batting %}
+    <p>Batting Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in batting_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in batting %}
+                <tr>
+                    {% for i in battinglen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if fielding %}
+    <p>Fielding Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in fielding_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in fielding %}
+                <tr>
+                    {% for i in fieldinglen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if allstarfull %}
+    <p>All Star Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in allstarfull_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in allstarfull %}
+                <tr>
+                    {% for i in allstarlen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if halloffame %}
+    <p>Hall of Fame Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in halloffame_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in halloffame %}
+                <tr>
+                    {% for i in halloffamelen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+    {% if battingpost %}
+    <p>Batting Post Season Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in battingpost_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in battingpost %}
+                <tr>
+                    {% for i in battingpostlen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if pitchingpost %}
+    <p>Pitching Post Season Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in pitchingpost_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in pitchingpost %}
+                <tr>
+                    {% for i in pitchingpostlen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if awardsplayers %}
+    <p>Awards Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in awardsplayers_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in awardsplayers %}
+                <tr>
+                    {% for i in awardslen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if fieldingpost %}
+    <p>Fielding Post Season Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in fieldingpost_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in fieldingpost %}
+                <tr>
+                    {% for i in fieldingpostlen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+    {% if appearances %}
+    <p>Appearances Table</p>
+    <div class="row" style="background-color: white; height: 900"> 
+<div class="scrollmenu">
+  <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
+      <thead>
+          <tr>
+            {% for i in appearances_headers %}
+            <th>{{i}}</th>
+            {% endfor %}
+          </tr>
+        </thead>    
+        <tbody>
+          {% for row in appearances %}
+                <tr>
+                    {% for i in appearanceslen %}
+                        <td>{{row[i]}}</td>
+                    {% endfor %}
+                </tr>
+        {% endfor %}
+         </tbody>
+  </table>
+</div>
+</div>
+    {% endif %}
+
+
+
+        <!--          
                     {% if allstarfull %}
                     <p>Allstarfull:</p>
                     <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">
@@ -361,9 +565,9 @@
                                       {% endfor %}
                                       </tbody>
                                   </table>   
-                                  {% endif %}                                                                                                       
-			</div>
-		</div>
+                                  {% endif %}    -->                                                                                                   
+			</div> 
+		</div> 
 
 	</body>
 </html>
