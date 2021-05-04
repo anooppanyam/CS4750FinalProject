@@ -71,7 +71,7 @@ def displayTable(table):
     cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
     account = cursor.fetchone()
     cnx.close()
-    return render_template('index.html', nc=ncol, account=account, data=data, headers=headers[ncol-7:ncol], cols=range(len(headers))[ncol-7:ncol], file="/" + table + "csv")
+    return render_template('index.html', table=table, nc=ncol, account=account, data=data, headers=headers[ncol-7:ncol], cols=range(len(headers))[ncol-7:ncol], file="/" + table + "csv")
     
   return redirect(url_for('login'))
 
@@ -468,7 +468,7 @@ def editprofile():
           except:
             return render_template('editprofile.html', msg="Username already exists!", form=form)
 
-      return render_template('editprofile.html', msg="Change Successful!", form=form)
+      return redirect(url_for('profile'))
   else: 
       cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
       cursor = cnx.cursor()
@@ -541,9 +541,9 @@ def player(playerid):
   appearances_headers = [desc[0] for desc in cursor.description]
   appearances_info = cursor.fetchall()
   cnx.close()
-    
+
   return render_template('player.html',
-      player=playerid,
+      player=playerid, fn = test[0][13], ln = test[0][14],
       people=people_info, people_headers=people_headers,
       pitch=pitch_info, pitch_headers=pitch_headers,
       batting=batting_info, batting_headers=batting_headers,
