@@ -5,6 +5,7 @@ from csv import writer
 from app.forms import EditAccountForm
 import re
 import hashlib 
+import itertools
 
 mydb = connect(
   host="usersrv01.cs.virginia.edu",
@@ -20,7 +21,7 @@ cursor = mydb.cursor()
 
 users = {
   "ss9ae_a": 'Spr1ng2021!!',
-  "ss9ae_b": 'Spr1ng2021!!',
+  "ss9ae_d": 'Spr1ng2021!!',
   "ss9ae_c": 'Spr1ng2021!!'
 }
 
@@ -51,8 +52,8 @@ def displayTable(table):
   if 'loggedin' in session:
     cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
     if request.method == 'POST':
-      query = "SELECT * FROM %s LIMIT 30"
-      cursor.execute(query, (table, ))
+      query = "SELECT * FROM %s LIMIT 30" % table
+      cursor.execute(query)
       cnx.close()
       data = cursor.fetchall()
       headers = [desc[0] for desc in cursor.description]
@@ -75,6 +76,56 @@ def displayTable(table):
     
   return redirect(url_for('login'))
 
+############################## FOLLOW ##############################
+@app.route('/follow/', methods=['GET', 'POST'])
+def follow():
+    if not ('loggedin' in session):
+      return redirect(url_for('login'))
+
+    msg = ''
+    # Check if "username", "password" and "email" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'player' in request.form:
+
+        # Create variables for easy access
+        player = request.form['player']
+        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
+        cursor = cnx.cursor()
+
+
+        cursor.execute('SELECT playerID FROM people')
+        allplayers = cursor.fetchall()
+        allplayers2 = list(itertools.chain(*allplayers))
+
+        if player in allplayers2:
+          cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
+          entries = cursor.fetchall()
+
+          cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
+          followplayers = cursor.fetchall()
+          followplayers2 = list(itertools.chain(*followplayers))
+
+          if player in followplayers2:
+            msg = 'You already follow this player!'
+            return render_template('following.html', msg=msg)
+          else:
+            if len(entries) == 1 and entries[0][1] == '':
+              cursor.execute('UPDATE following SET ID = %s, Player_Following = %s WHERE ID = %s', (int(session['id']), player, int(session['id'])))
+            else:
+              cursor.execute('INSERT INTO following VALUES (%s, %s)', (int(session['id']), player,))
+              msg = 'You have successfully followed!'
+              
+        else:
+          msg = player + ' does not exist in the database!'
+          return render_template('following.html', msg=msg)
+
+        cnx.commit()
+        cnx.close()
+        msg = 'You have successfully followed!'
+    #elif request.method == 'POST':
+        # Form is empty... (no POST data)
+     #   msg = 'Please fill out the form!'
+    # Show registration form with message (if any)
+    return render_template('following.html', msg=msg)
 
 ############################## PEOPLE ##############################
 @app.route('/people/', methods=['GET', 'POST'])
@@ -341,7 +392,7 @@ def login():
 
         username = request.form['username']
         password = encode_pass(request.form['password'])
-        cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_b", passwd=users['ss9ae_b'], database="ss9ae")
+        cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_d", passwd=users['ss9ae_d'], database="ss9ae")
         cursor = cnx.cursor()
         # Check if account exists using MySQL
         cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password,))
@@ -391,7 +442,7 @@ def register():
         username = request.form['username']
         password = encode_pass(request.form['password'])
         email = request.form['email']
-        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_b', password=users['ss9ae_b'], database="ss9ae",  auth_plugin='mysql_native_password')
+        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_d', password=users['ss9ae_d'], database="ss9ae",  auth_plugin='mysql_native_password')
         cursor = cnx.cursor()
         cursor.execute('SELECT * FROM accounts WHERE username = %s', (username,))
         account = cursor.fetchone()
@@ -428,10 +479,15 @@ def profile():
   cursor = cnx.cursor()
   cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
   account = cursor.fetchone()
+
+  cursor.execute('SELECT Player_Following FROM following WHERE id = %s', (session['id'],))
+  userfollows = cursor.fetchall()
+  userfollows2 = list(itertools.chain(*userfollows))
+
   cnx.close()
   # Show the profile page with account info
   
-  return render_template('profile.html', account=account)
+  return render_template('profile.html', account=account, follows=userfollows2)
 
 
 @app.route('/editprofile/', methods=['GET', 'POST'])

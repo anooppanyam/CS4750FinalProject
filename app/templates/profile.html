@@ -101,6 +101,8 @@
 				<a href="/teams">Teams</a>
 				<a href="/leagues">Leagues</a>
 				<a href="/divisions">Divisions</a>
+				<a href="/search-player">Search</a>
+				<a href="/follow">Follow</a>
 			</div>
 			</div>
 			<a href="/profile">Profile</a>
@@ -121,6 +123,18 @@
 					</tr>
 				</table>
 			</div>
+
+			<div>
+				<p>Your follows are below:</p>
+				<table>
+					{% for name in follows%}
+					<tr>
+						<td><a href="http://127.0.0.1:5000/player/{{name}}">{{name}}</a></td>
+					</tr>
+					{%endfor%}
+				</table>
+			</div>
+
 		</div>
 		<p align="center"><a href=/editprofile ><button class=grey style="height:75px;width:150px">Edit profile</button></a></p>
 	</body>

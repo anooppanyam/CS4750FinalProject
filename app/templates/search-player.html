@@ -93,6 +93,33 @@
             .scrollmenu { overflow-x: scroll; }
 		</style>
 
+        <div class="navbar">
+            <div class="dropdown">
+            <button class="dropbtn">Raw Data
+            </button>
+            <div class="dropdown-content">
+                <a href="/people">People</a>
+                <a href="/pitching">Pitching</a>
+                <a href="/batting">Bat</a>
+                <a href="/fielding">Fielder</a>
+                <a href="/allstarfull">AllStarFull</a>
+                <a href="/halloffame">HOF</a>
+                <a href="/battingpost">BatPost</a>
+                <a href="/pitchingpost">PitchingPost</a>
+                <a href="/awardsplayers">AwardsPlayers</a>
+                <a href="/fieldingpost">FielderPost</a>
+                <a href="/appearances">Appearances</a>
+                <a href="/teams">Teams</a>
+                <a href="/leagues">Leagues</a>
+                <a href="/divisions">Divisions</a>
+                <a href="/search-player">Search</a>
+                <a href="/follow">Follow</a>
+            </div>
+            </div>
+            <a href="/profile">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+
 	<div class="row1" style="background-color: black; padding-left: 750; height: 100">
 	    <div class="row" style="color: white;">
 	        <h1 class="center" style="font-size: 40">Player Search</h1>
