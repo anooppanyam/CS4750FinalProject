@@ -88,7 +88,7 @@
 </style>
 <div class="navbar">
     <div class="dropdown">
-    <button class="dropbtn">Raw Data
+    <button class="dropbtn">All Data
     </button>
     <div class="dropdown-content">
         <a href="/people">People</a>
@@ -133,7 +133,13 @@
      {% for row in data %}
             <tr>
                 {% for i in cols %}
-                <td>{{row[i]}}</td>
+                <td>{{row[i]}}<br>
+                    {% if headers[i] == 'playerID' %}
+                    <form method="POST">
+                        <button type="submit" class="btn btn-primary btn-md" style="color: blue;">Follow &plus; </button>
+                    </form>
+                    {% endif %}
+                </td>
                 {% endfor %}
             </tr>
     {% endfor %}
