@@ -51,8 +51,8 @@ def displayTable(table):
   if 'loggedin' in session:
     cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
     if request.method == 'POST':
-      query = "SELECT * FROM %s LIMIT 30"
-      cursor.execute(query, (table, ))
+      query = "SELECT * FROM %s LIMIT 30" % table
+      cursor.execute(query)
       cnx.close()
       data = cursor.fetchall()
       headers = [desc[0] for desc in cursor.description]

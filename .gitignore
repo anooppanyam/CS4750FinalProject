@@ -62,6 +62,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+penis/
 ENV/
 env.bak/
 venv.bak/
