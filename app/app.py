@@ -20,7 +20,7 @@ cursor = mydb.cursor()
 
 users = {
   "ss9ae_a": 'Spr1ng2021!!',
-  "ss9ae_b": 'Spr1ng2021!!',
+  "ss9ae_d": 'Spr1ng2021!!',
   "ss9ae_c": 'Spr1ng2021!!'
 }
 
@@ -341,7 +341,7 @@ def login():
 
         username = request.form['username']
         password = encode_pass(request.form['password'])
-        cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_b", passwd=users['ss9ae_b'], database="ss9ae")
+        cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_d", passwd=users['ss9ae_d'], database="ss9ae")
         cursor = cnx.cursor()
         # Check if account exists using MySQL
         cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password,))
@@ -391,7 +391,7 @@ def register():
         username = request.form['username']
         password = encode_pass(request.form['password'])
         email = request.form['email']
-        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_b', password=users['ss9ae_b'], database="ss9ae",  auth_plugin='mysql_native_password')
+        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_d', password=users['ss9ae_d'], database="ss9ae",  auth_plugin='mysql_native_password')
         cursor = cnx.cursor()
         cursor.execute('SELECT * FROM accounts WHERE username = %s', (username,))
         account = cursor.fetchone()
