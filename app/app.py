@@ -4,6 +4,7 @@ from mysql.connector import connect
 from csv import writer
 from app.forms import EditAccountForm
 import re
+import hashlib 
 
 mydb = connect(
   host="usersrv01.cs.virginia.edu",
@@ -12,7 +13,18 @@ mydb = connect(
   database="ss9ae"
 )
 
-cursor = mydb.cursor(buffered=True)
+cursor = mydb.cursor()
+
+
+
+
+users = {
+  "ss9ae_a": 'Spr1ng2021!!',
+  "ss9ae_b": 'Spr1ng2021!!',
+  "ss9ae_c": 'Spr1ng2021!!'
+}
+
+
 
 app = Flask(__name__)
 app.secret_key = 'LBS'
@@ -21,9 +33,13 @@ app.secret_key = 'LBS'
 ############################## PREPARE DOWNLOADABLE CSVs ##############################
 tables = ['people', 'pitching', 'batting', 'fielding', 'allstarfull', 'halloffame', 'battingpost', 'pitchingpost', 'awardsplayers', 'fieldingpost', 'appearances', 'teams', 'leagues', 'divisions']
 # for table in tables:
+#   cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+#   cursor = cnx.cursor()
 #   query = ("SELECT * FROM " + table)
 #   cursor.execute(query)
+# 
 #   data = cursor.fetchall()
+#   cnx.close()
 #   headers = [desc[0] for desc in cursor.description]
 #   with open("./app/data/" + table + ".csv", "w") as f:
 #           temp = writer(f)
@@ -33,9 +49,11 @@ tables = ['people', 'pitching', 'batting', 'fielding', 'allstarfull', 'halloffam
 
 def displayTable(table):
   if 'loggedin' in session:
+    cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
     if request.method == 'POST':
-      query = "SELECT * FROM %s LIMIT 30" % (table)
-      cursor.execute(query)
+      query = "SELECT * FROM %s LIMIT 30"
+      cursor.execute(query, (table, ))
+      cnx.close()
       data = cursor.fetchall()
       headers = [desc[0] for desc in cursor.description]
       if request.form.get('right'):
@@ -52,7 +70,9 @@ def displayTable(table):
       ncol = 7
     cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
     account = cursor.fetchone()
+    cnx.close()
     return render_template('index.html', nc=ncol, account=account, data=data, headers=headers[ncol-7:ncol], cols=range(len(headers))[ncol-7:ncol], file="/" + table + "csv")
+    
   return redirect(url_for('login'))
 
 
@@ -312,17 +332,22 @@ def divisionscsv():
 # https://codeshack.io/login-system-python-flask-mysql/
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    print(session)
     # Output message if something goes wrong...
     msg = ''
     # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         # Create variables for easy access
+
         username = request.form['username']
-        password = request.form['password']
+        password = encode_pass(request.form['password'])
+        cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_b", passwd=users['ss9ae_b'], database="ss9ae")
+        cursor = cnx.cursor()
         # Check if account exists using MySQL
         cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cursor.fetchone()
+        cnx.close()
         # If account exists in accounts table in out database
         if account:
             # Create session data, we can access this data in other routes
@@ -335,6 +360,8 @@ def login():
             # Account doesnt exist or username/password incorrect
             msg = 'Incorrect username/password!'
     # Show the login form with message (if any)
+    print(session)
+    print()
     return render_template('auth.html', msg=msg)
 
 @app.route('/logout/')
@@ -348,7 +375,10 @@ def logout():
 
 @app.route('/')
 def default():
-  return redirect(url_for('people'))
+  if 'loggedin' in session:
+    return redirect(url_for('profile'))
+  else:
+    return redirect(url_for('login'))
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -356,10 +386,13 @@ def register():
     msg = ''
     # Check if "username", "password" and "email" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+
         # Create variables for easy access
         username = request.form['username']
-        password = request.form['password']
+        password = encode_pass(request.form['password'])
         email = request.form['email']
+        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_b', password=users['ss9ae_b'], database="ss9ae",  auth_plugin='mysql_native_password')
+        cursor = cnx.cursor()
         cursor.execute('SELECT * FROM accounts WHERE username = %s', (username,))
         account = cursor.fetchone()
         # If account exists show error and validation checks
@@ -374,177 +407,173 @@ def register():
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s)', (username, password, email,))
-            mydb.commit()
+            cnx.commit()
+            cnx.close()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
         # Form is empty... (no POST data)
         msg = 'Please fill out the form!'
     # Show registration form with message (if any)
     return render_template('register.html', msg=msg)
+    
 
 @app.route('/profile/')
 def profile():
-    # Check if user is loggedin
-    if 'loggedin' in session:
-        # We need all the account info for the user so we can display it on the profile page
-        cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-        account = cursor.fetchone()
-        # Show the profile page with account info
-        return render_template('profile.html', account=account)
-    # User is not loggedin redirect to login page
+  
+  if not ('loggedin' in session):
     return redirect(url_for('login'))
+
+  cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+  # We need all the account info for the user so we can display it on the profile page
+  cursor = cnx.cursor()
+  cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+  account = cursor.fetchone()
+  cnx.close()
+  # Show the profile page with account info
+  
+  return render_template('profile.html', account=account)
+
 
 @app.route('/editprofile/', methods=['GET', 'POST'])
 def editprofile():
-  if 'loggedin' in session:
-    form = EditAccountForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            username = form.username.data
-            email = form.email.data
-            password = form.password.data
-            cursor.execute("update accounts set username='%s' , password='%s', email='%s' where id='%s'" % (username,password,email,session['id']))
-            mydb.commit()
-        return redirect('/profile/')
-    else:
-        cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
-        account = cursor.fetchone()
-        if account:
-            form.username.data = account[1]
-            form.password.data = account[2]
-            form.email.data = account[3]
-        return render_template('editprofile.html', title='Edit Account', form=form)
-  return redirect(url_for('login'))
+  if not 'loggedin' in session:
+    redirect(url_for('login'))
+
+  form = EditAccountForm()
+  
+  if request.method == 'POST':
+      if form.validate_on_submit():
+          # username = form.username.data
+          # email = form.email.data
+          # password = encode_pass(form.password.data)
+          
+          try:
+            cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+            cursor = cnx.cursor()
+
+            if encode_pass(form.password.data) == encode_pass(""):
+              cursor.execute("update accounts set username=%(username)s , email=%(email)s where id=%(id)s" , {'username': form.username.data,
+              'email': form.email.data,
+              'id': session['id']
+              })
+            else:
+              cursor.execute("update accounts set username=%(username)s , password=%(password)s, email=%(email)s where id=%(id)s" , {'username': form.username.data,
+                'password': encode_pass(form.password.data),
+                'email': form.email.data,
+                'id': session['id']
+                })
+
+            cnx.commit()
+            cnx.close()
+          except:
+            return render_template('editprofile.html', msg="Username already exists!", form=form)
+
+      return render_template('editprofile.html', msg="Change Successful!", form=form)
+  else: 
+      cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+      cursor = cnx.cursor()
+      cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+      account = cursor.fetchone()
+      cnx.close()
+      if account:
+          form.username.data = account[1]
+          form.password.data = ""
+          form.email.data = account[3]
+
+  return render_template('editprofile.html', msg='', form=form)
 
 @app.route('/player/<playerid>/', methods=['GET', 'POST'])
 def player(playerid):
+  if not 'loggedin' in session:
+    return redirect(url_for('login'))
+
+  cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+  cnx.cursor()
   cursor.execute('SELECT * FROM people WHERE playerID = %s', (playerid,))
   test = cursor.fetchall()
+  cnx.close()
+  
   if not test:
-    return redirect(url_for('people'))
-  if 'loggedin' in session:
-    if request.method == 'POST':
-      cursor.execute('SELECT * FROM people WHERE playerID = %s', (playerid,))
-      people_headers = [desc[0] for desc in cursor.description]
-      people_info = cursor.fetchall()
+    return redirect(url_for('search-player'))  # ---> redirect to search players if player id passed into url has no route 
 
-      cursor.execute('SELECT * FROM pitching WHERE playerID = %s', (playerid,))
-      pitch_headers = [desc[0] for desc in cursor.description]
-      pitch_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM batting WHERE playerID = %s', (playerid,))
-      batting_headers = [desc[0] for desc in cursor.description]
-      batting_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM fielding WHERE playerID = %s', (playerid,))
-      fielding_headers = [desc[0] for desc in cursor.description]
-      fielding_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM allstarfull WHERE playerID = %s', (playerid,))
-      allstarfull_headers = [desc[0] for desc in cursor.description]
-      allstarfull_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM halloffame WHERE playerID = %s', (playerid,))
-      halloffame_headers = [desc[0] for desc in cursor.description]
-      halloffame_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM battingpost WHERE playerID = %s', (playerid,))
-      battingpost_headers = [desc[0] for desc in cursor.description]
-      battingpost_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM pitchingpost WHERE playerID = %s', (playerid,))
-      pitchingpost_headers = [desc[0] for desc in cursor.description]
-      pitchingpost_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM awardsplayers WHERE playerID = %s', (playerid,))
-      awardsplayers_headers = [desc[0] for desc in cursor.description]
-      awardsplayers_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM fieldingpost WHERE playerID = %s', (playerid,))
-      fieldingpost_headers = [desc[0] for desc in cursor.description]
-      fieldingpost_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM appearances WHERE playerID = %s', (playerid,))
-      appearances_headers = [desc[0] for desc in cursor.description]
-      appearances_info = cursor.fetchall()
+  cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+  cursor.execute('SELECT * FROM people WHERE playerID = %s', (playerid,))
+  people_headers = [desc[0] for desc in cursor.description]
+  people_info = cursor.fetchall()
 
-      if request.form.get('right'):
-        temp = min([len(people_headers), len(pitch_headers), len(batting_headers), len(fielding_headers),
-                    len(allstarfull_headers), len(halloffame_headers), len(battingpost_headers), len(pitchingpost_headers), 
-                    len(awardsplayers_headers), len(fieldingpost_headers), len(appearances_headers)])
-        ncol = min(temp, int(request.form.get('right'))+3)
-      elif request.form.get('left'):
-        ncol = max(3, int(request.form.get('left'))-3)
-      else:
-        ncol = 3
-    else:
-      cursor.execute('SELECT * FROM people WHERE playerID = %s', (playerid,))
-      people_headers = [desc[0] for desc in cursor.description]
-      people_info = cursor.fetchall()
+  cursor.execute('SELECT * FROM pitching WHERE playerID = %s', (playerid,))
+  pitch_headers = [desc[0] for desc in cursor.description]
+  pitch_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM batting WHERE playerID = %s', (playerid,))
+  batting_headers = [desc[0] for desc in cursor.description]
+  batting_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM fielding WHERE playerID = %s', (playerid,))
+  fielding_headers = [desc[0] for desc in cursor.description]
+  fielding_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM allstarfull WHERE playerID = %s', (playerid,))
+  allstarfull_headers = [desc[0] for desc in cursor.description]
+  allstarfull_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM halloffame WHERE playerID = %s', (playerid,))
+  halloffame_headers = [desc[0] for desc in cursor.description]
+  halloffame_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM battingpost WHERE playerID = %s', (playerid,))
+  battingpost_headers = [desc[0] for desc in cursor.description]
+  battingpost_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM pitchingpost WHERE playerID = %s', (playerid,))
+  pitchingpost_headers = [desc[0] for desc in cursor.description]
+  pitchingpost_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM awardsplayers WHERE playerID = %s', (playerid,))
+  awardsplayers_headers = [desc[0] for desc in cursor.description]
+  awardsplayers_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM fieldingpost WHERE playerID = %s', (playerid,))
+  fieldingpost_headers = [desc[0] for desc in cursor.description]
+  fieldingpost_info = cursor.fetchall()
+  
+  cursor.execute('SELECT * FROM appearances WHERE playerID = %s', (playerid,))
+  appearances_headers = [desc[0] for desc in cursor.description]
+  appearances_info = cursor.fetchall()
+  cnx.close()
+    
+  return render_template('player.html',
+      player=playerid,
+      people=people_info, people_headers=people_headers,
+      pitch=pitch_info, pitch_headers=pitch_headers,
+      batting=batting_info, batting_headers=batting_headers,
+      fielding=fielding_info, fielding_headers=fielding_headers,
+      allstarfull=allstarfull_info, allstarfull_headers=allstarfull_headers,
+      halloffame=halloffame_info, halloffame_headers=halloffame_headers,
+      battingpost=battingpost_info, battingpost_headers=battingpost_headers,
+      pitchingpost=pitchingpost_info, pitchingpost_headers=pitchingpost_headers,
+      awardsplayers=awardsplayers_info, awardsplayers_headers=awardsplayers_headers,
+      fieldingpost=fieldingpost_info, fieldingpost_headers=fieldingpost_headers,
+      appearances=appearances_info, appearances_headers=appearances_headers,
+      pitchlen=range(len(pitch_headers)),
+      battinglen=range(len(batting_headers)),
+      fieldinglen=range(len(fielding_headers)),
+      allstarlen=range(len(allstarfull_headers)),
+      halloffamelen=range(len(halloffame_headers)),
+      battingpostlen=range(len(battingpost_headers)),
+      pitchingpostlen=range(len(pitchingpost_headers)),
+      awardslen=range(len(awardsplayers_headers)),
+      fieldingpostlen=range(len(fieldingpost_headers)),
+      appearanceslen=range(len(appearances_headers)),
+      peoplelen=range(len(people_headers)),
+      )
 
-      cursor.execute('SELECT * FROM pitching WHERE playerID = %s', (playerid,))
-      pitch_headers = [desc[0] for desc in cursor.description]
-      pitch_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM batting WHERE playerID = %s', (playerid,))
-      batting_headers = [desc[0] for desc in cursor.description]
-      batting_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM fielding WHERE playerID = %s', (playerid,))
-      fielding_headers = [desc[0] for desc in cursor.description]
-      fielding_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM allstarfull WHERE playerID = %s', (playerid,))
-      allstarfull_headers = [desc[0] for desc in cursor.description]
-      allstarfull_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM halloffame WHERE playerID = %s', (playerid,))
-      halloffame_headers = [desc[0] for desc in cursor.description]
-      halloffame_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM battingpost WHERE playerID = %s', (playerid,))
-      battingpost_headers = [desc[0] for desc in cursor.description]
-      battingpost_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM pitchingpost WHERE playerID = %s', (playerid,))
-      pitchingpost_headers = [desc[0] for desc in cursor.description]
-      pitchingpost_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM awardsplayers WHERE playerID = %s', (playerid,))
-      awardsplayers_headers = [desc[0] for desc in cursor.description]
-      awardsplayers_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM fieldingpost WHERE playerID = %s', (playerid,))
-      fieldingpost_headers = [desc[0] for desc in cursor.description]
-      fieldingpost_info = cursor.fetchall()
-      
-      cursor.execute('SELECT * FROM appearances WHERE playerID = %s', (playerid,))
-      appearances_headers = [desc[0] for desc in cursor.description]
-      appearances_info = cursor.fetchall()
-
-      ncol = 3
-    print(fieldingpost_info)
-    return render_template('player.html',
-          player=playerid, nc=ncol, cols=range(ncol-3, ncol),
-          people=people_info, people_headers=people_headers[ncol-3:ncol],
-          pitch=pitch_info, pitch_headers=pitch_headers[ncol-3:ncol],
-          batting=batting_info, batting_headers=batting_headers[ncol-3:ncol],
-          fielding=fielding_info, fielding_headers=fielding_headers[ncol-3:ncol],
-          allstarfull=allstarfull_info, allstarfull_headers=allstarfull_headers[ncol-3:ncol],
-          halloffame=halloffame_info, halloffame_headers=halloffame_headers[ncol-3:ncol],
-          battingpost=battingpost_info, battingpost_headers=battingpost_headers[ncol-3:ncol],
-          pitchingpost=pitchingpost_info, pitchingpost_headers=pitchingpost_headers[ncol-3:ncol],
-          awardsplayers=awardsplayers_info, awardsplayers_headers=awardsplayers_headers[ncol-3:ncol],
-          fieldingpost=fieldingpost_info, fieldingpost_headers=fieldingpost_headers[ncol-3:ncol],
-          appearances=appearances_info, appearances_headers=appearances_headers[ncol-3:ncol],
-        )
-  return redirect(url_for('login'))
 
 @app.route('/search-player/')
 def search_player():
   if not 'loggedin' in session:
     return redirect(url_for('login'))
-  #name = request.args.get('query')
+
   query = request.args.get('query')
   orderby = request.args.get('orderby')
   table = request.args.get('table')
@@ -568,23 +597,31 @@ def search_player():
   else:
       cmd = cmd + ' LIMIT 10' 
 
-  #print(name, cmd)
   
-  
+  cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+  cursor = cnx.cursor()
   cursor.execute(cmd, (name, ))
-  ##Code Addition
   search_headers = [desc[0] for desc in cursor.description]
 
   result = []
   for item in cursor:
       result.append(item)
+  
+  cnx.close()
 
   if len(result) == 0:
-      context = dict(message='Player not found you stupid fuck') 
+      context = dict(message='Player not found!') 
   else:
       context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby, data_header = search_headers) ##Code addition
 
-  #print(result)
 
   return render_template('search-player.html', **context)
+
+
+
+
+#### static function to hash passwords ####
+def encode_pass(pwd):
+  return hashlib.pbkdf2_hmac('sha256', pwd.encode('utf-8'), bytes([32]), 100000)
+
 
