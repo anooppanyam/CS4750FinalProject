@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="utf-8">
-        <title>Follow</title>
+        <title>Unfollow</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
     </head>
@@ -111,16 +111,16 @@
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
         <div class="center">
-            <h1 >Follow</h1>
+            <h1 >Unfollow</h1>
             <div class="links">
             </div>
-            <form action="{{ url_for('follow') }}" method="post" autocomplete="off">
+            <form action="{{ url_for('unfollow') }}" method="post" autocomplete="off">
                 <label for="follow">
                     <i class="fas fa-user"></i>
                 </label>
                 <input type="text" name="player" placeholder="Player" id="player" required>
                 <div class="msg">{{ msg }}</div>
-                <input type="submit" value="Follow!">
+                <input type="submit" value="Unollow">
             </form>
         </div>
 
