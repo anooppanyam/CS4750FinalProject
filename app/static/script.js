@@ -14,11 +14,11 @@ var funcBtns ={
   },
   alertOK:function(msg){
     // Override global options
-    toastr.success(msg, {timeOut: 5000});
+    toastr.success(msg, {timeOut: 2000});
   },
   alertnotOK:function(msg){
     // Override global options
-    toastr.error(msg, {timeOut: 5000});
+    toastr.error(msg, {timeOut: 2000});
   }
 };
 
