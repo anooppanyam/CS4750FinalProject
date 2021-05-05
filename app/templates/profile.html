@@ -109,9 +109,22 @@
     <a href="/search-player/" style="float: left;">Search</a>
   </div>
 
-			<div style="text-align: center;">
-					<h1 style="font-size: xxx-large; margin-top: 30px; margin-bottom: 20px; font-weight:normal"><b style="font-size: xxx-large;">Profile</b></h1>
-			</div>
+  <div style="text-align: center;">
+      <h1 style="font-size: xxx-large; margin-top: 30px; margin-bottom: 20px; font-weight:normal"><b style="font-size: xxx-large;">Profile</b></h1>
+  </div>
+
+  {% if follows[0] %}
+  <div style="text-align: center; margin-top: 100px;">
+    <p>Players you follow:</p>
+    <table style="margin-left: 46.5%; margin-bottom: 100px;">
+      {% for name in follows%}
+      <tr>
+        <td><a href="/player/{{name}}/" style="font-weight:bold;text-decoration: none; color:blue;">{{name}}</a></td>
+      </tr>
+      {%endfor%}
+    </table>
+  </div>
+  {% endif %}
 			<div style="text-align: center; margin-top: 100px;">
 				<p>Account details:</p>
 			</div>
@@ -124,18 +137,6 @@
 						<td><b>Email</b>:</td>
 						<td>{{ account[3] }}</td>
 					</tr>
-				</table>
-		<p align="center"><a href=/editprofile ><button class=grey style="height:30px;width:180px;background-color: white;"><b>Edit profile</b></button></a></p>
-			</div>
-
-			<div>
-				<p>Your follows are below:</p>
-				<table>
-					{% for name in follows%}
-					<tr>
-						<td><a href="http://127.0.0.1:5000/player/{{name}}">{{name}}</a></td>
-					</tr>
-					{%endfor%}
 				</table>
 			</div>
 

@@ -680,7 +680,7 @@ def player(playerid):
   		if player in followplayers2:
   			msg = 'You already follow this player!'
   			return render_template('player.html',
-									player=playerid,
+									player=playerid, fn = test[0][13], ln = test[0][14],
 	                              people=people_info, people_headers=people_headers,
 	                              pitch=pitch_info, pitch_headers=pitch_headers,
 	                              batting=batting_info, batting_headers=batting_headers,
@@ -738,7 +738,7 @@ def player(playerid):
   		if player not in followplayers2:
   			msg = 'You do not follow this player yet so you cannot unfollow him'
   			return render_template('player.html',
-  										player=playerid,
+  										player=playerid, fn = test[0][13], ln = test[0][14],
 			                              people=people_info, people_headers=people_headers,
 			                              pitch=pitch_info, pitch_headers=pitch_headers,
 			                              batting=batting_info, batting_headers=batting_headers,
