@@ -71,7 +71,7 @@ def displayTable(table):
     cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
     account = cursor.fetchone()
     cnx.close()
-    return render_template('index.html', nc=ncol, account=account, data=data, headers=headers[ncol-7:ncol], cols=range(len(headers))[ncol-7:ncol], file="/" + table + "csv")
+    return render_template('index.html', table=table, nc=ncol, account=account, data=data, headers=headers[ncol-7:ncol], cols=range(len(headers))[ncol-7:ncol], file="/" + table + "csv")
     
   return redirect(url_for('login'))
 
@@ -468,7 +468,7 @@ def editprofile():
           except:
             return render_template('editprofile.html', msg="Username already exists!", form=form)
 
-      return render_template('editprofile.html', msg="Change Successful!", form=form)
+      return redirect(url_for('profile'))
   else: 
       cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
       cursor = cnx.cursor()
@@ -541,9 +541,9 @@ def player(playerid):
   appearances_headers = [desc[0] for desc in cursor.description]
   appearances_info = cursor.fetchall()
   cnx.close()
-    
+
   return render_template('player.html',
-      player=playerid,
+      player=playerid, fn = test[0][13], ln = test[0][14],
       people=people_info, people_headers=people_headers,
       pitch=pitch_info, pitch_headers=pitch_headers,
       batting=batting_info, batting_headers=batting_headers,
@@ -583,6 +583,8 @@ def search_player():
     cmd == """SELECT * from career_pitching_saber WHERE Full_Name LIKE %s"""
   elif(table == 'Batting'):
     cmd = """SELECT * from career_batting_saber WHERE Full_Name LIKE %s"""
+  else:
+    table = 'Pitching'
 
   if query is None:
     query = ''
@@ -592,10 +594,18 @@ def search_player():
   if orderby is None or orderby == 'None' or orderby == '':
     orderby = 'playerID'
   
+  print(orderby)
+  print(table)
   if orderby is not None and orderby != 'None':
-      cmd = cmd + ' ORDER BY ' + orderby + ' DESC LIMIT 10' 
+    if (table == 'Pitching') and orderby not in ['Full_Name',	'playerID',	'TotalW',	'TotalGS',	'TotalSV',	'TotalSHO',	'TotalIPOuts',	'AvgERA',	'AvgBAOpp',	'AvgIP',	'AvgK_9',	'AvgBB_9',	'AvgK_BB',	'AvgKpct',	'BBpct',	'HR_9',	'AvgBA',	'AvgWHIP',	'AvgBABIP']:
+      context = dict(message='Unable to order by invalid column name!') 
+      return render_template('search-player.html', **context)
+    elif (table == 'Batting') and orderby not in ['Full_Name',	'playerID',	'TotalGames',	'TotalAB',	'TotalR',	'TotalH',	'TotalHR',	'TotalRBI',	'AvgBA',	'AvgBBpct',	'AvgKpct',	'AvgISO',	'AvgBABIP',	'AvgOBP',	'AvgSLG',	'AvgOPS']:
+      context = dict(message='Unable to order by invalid column name!') 
+      return render_template('search-player.html', **context)
+    cmd = cmd + ' ORDER BY ' + orderby + ' DESC LIMIT 10' 
   else:
-      cmd = cmd + ' LIMIT 10' 
+    cmd = cmd + ' LIMIT 10' 
 
   
   cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
@@ -615,7 +625,7 @@ def search_player():
       context = dict(data=result, cols = range(len(result[0])), query=query, orderby=orderby, data_header = search_headers) ##Code addition
 
 
-  return render_template('search-player.html', **context)
+  return render_template('search-player.html', table=table, **context)
 
 
 

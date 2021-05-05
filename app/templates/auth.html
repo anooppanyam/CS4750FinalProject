@@ -8,22 +8,18 @@
 	</head>
 	<body>
 		<div class="login">
-			<h1>Login</h1>
+			<div style="text-align: center;">
+				<h1 style="font-size: xxx-large; margin-bottom: 20px; font-weight:normal"><b style="font-size: xxx-large;">Login</b></h1>
+			</div>
 			<div class="links">
 				<a href="{{ url_for('login') }}" class="active">Login</a>
 				<a href="{{ url_for('register') }}">Register</a>
 			</div>
 			<form action="{{ url_for('login') }}" method="post">
-				<label for="username">
-					<i class="fas fa-user"></i>
-				</label>
 				<input type="text" name="username" placeholder="Username" id="username" required>
-				<label for="password">
-					<i class="fas fa-lock"></i>
-				</label>
 				<input type="password" name="password" placeholder="Password" id="password" required>
 				<div class="msg">{{ msg }}</div>
-				<input type="submit" value="Login">
+				<button class=grey style="height:45px;width:400px;background-color: white;" type="submit" value="Login"><b>Login</b></button>
 			</form>
 		</div>
 	</body>

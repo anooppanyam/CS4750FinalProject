@@ -2,7 +2,13 @@
 <html>
 <head>
     <title>BatBox'd</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
 <style>
@@ -10,16 +16,21 @@
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
     }
-    /* Navbar container */
-    .navbar {
-    overflow: hidden;
-    background-color: #333;
-    font-family: Arial;
+    
+    td {
+        width: 150px;
+        text-align: center;
+        border: 1px solid black;
+        padding: 5px;
     }
 
-    /* Links inside the navbar */
+    .navbar {
+    overflow: hidden;
+    background-color: black;
+    }
+
     .navbar a {
-    float: left;
+    float: right;
     font-size: 16px;
     color: white;
     text-align: center;
@@ -27,30 +38,26 @@
     text-decoration: none;
     }
 
-    /* The dropdown container */
     .dropdown {
-    float: left;
+    float: right;
     overflow: hidden;
     }
 
-    /* Dropdown button */
     .dropdown .dropbtn {
-    font-size: 16px;
+    font-size: 16px;  
     border: none;
     outline: none;
     color: white;
     padding: 14px 16px;
     background-color: inherit;
-    font-family: inherit; /* Important for vertical align on mobile phones */
-    margin: 0; /* Important for vertical align on mobile phones */
+    font-family: inherit;
+    margin: 0;
     }
 
-    /* Add a red background color to navbar links on hover */
     .navbar a:hover, .dropdown:hover .dropbtn {
-    background-color: grey;
+    background-color: darkslategray;
     }
 
-    /* Dropdown content (hidden by default) */
     .dropdown-content {
     display: none;
     position: absolute;
@@ -60,7 +67,6 @@
     z-index: 1;
     }
 
-    /* Links inside the dropdown */
     .dropdown-content a {
     float: none;
     color: black;
@@ -70,27 +76,22 @@
     text-align: left;
     }
 
-    /* Add a grey background color to dropdown links on hover */
     .dropdown-content a:hover {
-    background-color: #ddd;
+    background-color:lightgrey;
     }
 
-    /* Show the dropdown menu on hover */
     .dropdown:hover .dropdown-content {
     display: block;
     }
-    td {
-        width: 150px;
-        text-align: center;
-        border: 1px solid black;
-        padding: 5px;
-    }
 </style>
+
 <div class="navbar">
-    <div class="dropdown">
-    <button class="dropbtn">All Data
-    </button>
-    <div class="dropdown-content">
+    <a href="/logout/" style="float: right;">Logout</a>
+    <a href="/profile/">Profile</a>
+    <div class="dropdown" style="float: left;">
+      <button class="dropbtn">All Data
+      </button>
+      <div class="dropdown-content">
         <a href="/people">People</a>
         <a href="/pitching">Pitching</a>
         <a href="/batting">Bat</a>
@@ -105,19 +106,19 @@
         <a href="/teams">Teams</a>
         <a href="/leagues">Leagues</a>
         <a href="/divisions">Divisions</a>
-    </div>
-    </div>
-    <a href="/profile">Profile</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
-</div>
+      </div>
+    </div> 
+    <a href="/search-player/" style="float: left;">Search</a>
+  </div>
+
 <div style="text-align: center;">
-        <h1 style="font-size: xx-large;">Welcome {{ account[1] }}!</h1>
+        <h1 style="font-size: xxx-large; margin-top: 30px; margin-bottom: 20px; font-weight:normal"><b style="font-size: xxx-large;">{{ table.title() }}</b></h1>
 </div>
 
 <form method="POST">
     <div style="text-align: center;">
-    <button name='left' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>&#60;&#60;</button>
-    <button name='right' type='submit' style="width:45px;height:30px;" value='{{ nc }}'>>></button>
+    <button name='left' type='submit' style="width:360px;height:30px;margin-bottom: 20px;background-color: white;" value='{{ nc }}'><b>&#x2190;</b></button>
+    <button name='right' type='submit' style="width:360px;height:30px;margin-bottom: 20px;background-color: white;" value='{{ nc }}'><b>&#x2192;</b></button>
 </div>
 </form>
 
@@ -125,7 +126,7 @@
   <thead>
     <tr>
         {% for col in headers %}
-        <th>{{col}}</th>
+        <th style="text-align: center;">{{col}}</th>
         {% endfor %}
     </tr>
     </thead>    
@@ -139,10 +140,10 @@
     {% endfor %}
     </tbody>
 </table>
-<div style="text-align: center;">
-    <a href={{file}} download>
-        Download as CSV
-    </a>
+<div style="text-align: center;margin-bottom:20px;">
+        <a href={{file}} download style="font-weight:bold;text-decoration: none; color:blue;">
+            Download as CSV
+        </a>
 </div>
 </body>
 </html>
