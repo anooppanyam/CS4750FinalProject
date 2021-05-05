@@ -76,109 +76,6 @@ def displayTable(table):
     
   return redirect(url_for('login'))
 
-############################## FOLLOW ##############################
-@app.route('/follow/', methods=['GET', 'POST'])
-def follow():
-    if not ('loggedin' in session):
-      return redirect(url_for('login'))
-
-    msg = ''
-    # Check if "username", "password" and "email" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'player' in request.form:
-
-        # Create variables for easy access
-        player = request.form['player']
-        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
-        cursor = cnx.cursor()
-
-
-        cursor.execute('SELECT playerID FROM people')
-        allplayers = cursor.fetchall()
-        allplayers2 = list(itertools.chain(*allplayers))
-
-        if player in allplayers2:
-          cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
-          entries = cursor.fetchall()
-
-          cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
-          followplayers = cursor.fetchall()
-          followplayers2 = list(itertools.chain(*followplayers))
-
-          if player in followplayers2:
-            msg = 'You already follow this player!'
-            return render_template('following.html', msg=msg)
-          else:
-            if len(entries) == 1 and entries[0][1] == '':
-              cursor.execute('UPDATE following SET ID = %s, Player_Following = %s WHERE ID = %s', (int(session['id']), player, int(session['id'])))
-            else:
-              cursor.execute('INSERT INTO following VALUES (%s, %s)', (int(session['id']), player,))
-              msg = 'You have successfully followed!'
-              
-        else:
-          msg = player + ' does not exist in the database!'
-          return render_template('following.html', msg=msg)
-
-        cnx.commit()
-        cnx.close()
-        msg = 'You have successfully followed!'
-    #elif request.method == 'POST':
-        # Form is empty... (no POST data)
-     #   msg = 'Please fill out the form!'
-    # Show registration form with message (if any)
-    return render_template('following.html', msg=msg)
-
-
-############################## UNFOLLOW ##############################
-
-@app.route('/unfollow/', methods=['GET', 'POST'])
-def unfollow():
-    if not ('loggedin' in session):
-      return redirect(url_for('login'))
-
-    msg = ''
-    # Check if "username", "password" and "email" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'player' in request.form:
-
-        # Create variables for easy access
-        player = request.form['player']
-        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
-        cursor = cnx.cursor()
-
-
-        cursor.execute('SELECT playerID FROM people')
-        allplayers = cursor.fetchall()
-        allplayers2 = list(itertools.chain(*allplayers))
-
-        #Condition to make sure player exists in the database
-        if player in allplayers2:
-          cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
-          entries = cursor.fetchall()
-
-          cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
-          followplayers = cursor.fetchall()
-          followplayers2 = list(itertools.chain(*followplayers))
-
-          #If you don't follow this player, an error message is printed
-          if player not in followplayers2:
-            msg = 'You do not follow this player yet!'
-            return render_template('unfollow.html', msg=msg)
-          else:
-              cursor.execute( 'DELETE FROM following WHERE ID = %s and Player_Following = %s', (int(session['id']), player))
-              msg = 'You have successfully unfollowed!'
-              
-        else:
-          msg = player + ' does not exist in the database!'
-          return render_template('unfollow.html', msg=msg)
-
-        cnx.commit()
-        cnx.close()
-        msg = 'You have successfully unfollowed!'
-    #elif request.method == 'POST':
-        # Form is empty... (no POST data)
-     #   msg = 'Please fill out the form!'
-    # Show registration form with message (if any)
-    return render_template('unfollow.html', msg=msg)
-
 ############################## PEOPLE ##############################
 @app.route('/people/', methods=['GET', 'POST'])
 def people():
@@ -660,9 +557,9 @@ def player(playerid):
 
   msg = ''
   # Check if "username", "password" and "email" POST requests exist (user submitted form)
-  if request.method == 'POST' and 'player' in request.form:
+  if request.method == 'POST':
   	if request.form.get("followsubmit"):
-  		player = request.form['player']
+  		player = playerid
   		cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
   		cursor = cnx.cursor()
 
@@ -717,7 +614,7 @@ def player(playerid):
   		msg = 'You have successfully followed!'
 
   	elif request.form.get("unfollowsubmit"):
-  		player = request.form['player']
+  		player = playerid
   		cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
   		cursor = cnx.cursor()
   		

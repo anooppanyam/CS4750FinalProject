@@ -6,11 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='toastr.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.js" data-semver="3.0.0" data-require="jquery"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='toastr.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script> 
 </head>
-<body>
+{% if msg == "You have successfully followed!" %}
+  <body onload="funcBtns.alertOK('You followed this player!')">
+{% elif msg == "You already follow this player!" %}
+    <body onload="funcBtns.alertnotOK('You already follow this player!')">
+{% elif msg == "You have successfully unfollowed!" %}
+    <body onload="funcBtns.alertOK('You unfollowed this player!')">
+{% elif msg == "You do not follow this player yet so you cannot unfollow him" %}
+    <body onload="funcBtns.alertnotOK('You do not follow this player!')">
+{% else %}
+  <body>
+{% endif %}
 <style>
     body {
         margin: 0;
@@ -111,20 +124,17 @@
     </div> 
     <a href="/search-player/" style="float: left;">Search</a>
   </div>
-        
+
   <div style="text-align: center;">
     <h1 style="font-size: xxx-large; margin-top: 30px; margin-bottom: 20px; font-weight:normal"><b style="font-size: xxx-large;">{{fn}} {{ln}} ({{player}})</b></h1>
-</div>
-            <p>{{msg}}</p>
+  </div>
+
+  <div style="text-align: center;">
     <form action="{{ url_for('player', playerid=player) }}" method="post" autocomplete="off">
-                <label for="player">
-                    <i class="fas fa-user"></i>
-                </label>
-                <input type="checkbox" id="player" name="player" value="{{player}}">
-                <label for="player">{{player}}</label><br>
-                <input type="submit" name="followsubmit" value="Follow!">
-                <input type="submit" name="unfollowsubmit" value="Unfollow">
-            </form>
+      <button name='followsubmit' type='submit' style="width:360px;height:30px;margin-bottom: 20px;background-color: white;" value='Follow!'><b>Follow</b></button>
+      <button name='unfollowsubmit' type='submit' style="width:360px;height:30px;margin-bottom: 20px;background-color: white;" value='Unfollow'><b>Unfollow</b></button>  
+    </form>
+  </div>
   
     {% if people %}
     <h2 style="text-align: center; font-size: x-large;">People</h2>
