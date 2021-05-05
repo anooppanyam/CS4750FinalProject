@@ -5,6 +5,7 @@ from csv import writer
 from app.forms import EditAccountForm
 import re
 import hashlib 
+import itertools
 
 mydb = connect(
   host="usersrv01.cs.virginia.edu",
@@ -75,6 +76,108 @@ def displayTable(table):
     
   return redirect(url_for('login'))
 
+############################## FOLLOW ##############################
+@app.route('/follow/', methods=['GET', 'POST'])
+def follow():
+    if not ('loggedin' in session):
+      return redirect(url_for('login'))
+
+    msg = ''
+    # Check if "username", "password" and "email" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'player' in request.form:
+
+        # Create variables for easy access
+        player = request.form['player']
+        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
+        cursor = cnx.cursor()
+
+
+        cursor.execute('SELECT playerID FROM people')
+        allplayers = cursor.fetchall()
+        allplayers2 = list(itertools.chain(*allplayers))
+
+        if player in allplayers2:
+          cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
+          entries = cursor.fetchall()
+
+          cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
+          followplayers = cursor.fetchall()
+          followplayers2 = list(itertools.chain(*followplayers))
+
+          if player in followplayers2:
+            msg = 'You already follow this player!'
+            return render_template('following.html', msg=msg)
+          else:
+            if len(entries) == 1 and entries[0][1] == '':
+              cursor.execute('UPDATE following SET ID = %s, Player_Following = %s WHERE ID = %s', (int(session['id']), player, int(session['id'])))
+            else:
+              cursor.execute('INSERT INTO following VALUES (%s, %s)', (int(session['id']), player,))
+              msg = 'You have successfully followed!'
+              
+        else:
+          msg = player + ' does not exist in the database!'
+          return render_template('following.html', msg=msg)
+
+        cnx.commit()
+        cnx.close()
+        msg = 'You have successfully followed!'
+    #elif request.method == 'POST':
+        # Form is empty... (no POST data)
+     #   msg = 'Please fill out the form!'
+    # Show registration form with message (if any)
+    return render_template('following.html', msg=msg)
+
+
+############################## UNFOLLOW ##############################
+
+@app.route('/unfollow/', methods=['GET', 'POST'])
+def unfollow():
+    if not ('loggedin' in session):
+      return redirect(url_for('login'))
+
+    msg = ''
+    # Check if "username", "password" and "email" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'player' in request.form:
+
+        # Create variables for easy access
+        player = request.form['player']
+        cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
+        cursor = cnx.cursor()
+
+
+        cursor.execute('SELECT playerID FROM people')
+        allplayers = cursor.fetchall()
+        allplayers2 = list(itertools.chain(*allplayers))
+
+        #Condition to make sure player exists in the database
+        if player in allplayers2:
+          cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
+          entries = cursor.fetchall()
+
+          cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
+          followplayers = cursor.fetchall()
+          followplayers2 = list(itertools.chain(*followplayers))
+
+          #If you don't follow this player, an error message is printed
+          if player not in followplayers2:
+            msg = 'You do not follow this player yet!'
+            return render_template('unfollow.html', msg=msg)
+          else:
+              cursor.execute( 'DELETE FROM following WHERE ID = %s and Player_Following = %s', (int(session['id']), player))
+              msg = 'You have successfully unfollowed!'
+              
+        else:
+          msg = player + ' does not exist in the database!'
+          return render_template('unfollow.html', msg=msg)
+
+        cnx.commit()
+        cnx.close()
+        msg = 'You have successfully unfollowed!'
+    #elif request.method == 'POST':
+        # Form is empty... (no POST data)
+     #   msg = 'Please fill out the form!'
+    # Show registration form with message (if any)
+    return render_template('unfollow.html', msg=msg)
 
 ############################## PEOPLE ##############################
 @app.route('/people/', methods=['GET', 'POST'])
@@ -428,10 +531,15 @@ def profile():
   cursor = cnx.cursor()
   cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
   account = cursor.fetchone()
+
+  cursor.execute('SELECT Player_Following FROM following WHERE id = %s', (session['id'],))
+  userfollows = cursor.fetchall()
+  userfollows2 = list(itertools.chain(*userfollows))
+
   cnx.close()
   # Show the profile page with account info
   
-  return render_template('profile.html', account=account)
+  return render_template('profile.html', account=account, follows=userfollows2)
 
 
 @app.route('/editprofile/', methods=['GET', 'POST'])
@@ -487,16 +595,24 @@ def player(playerid):
   if not 'loggedin' in session:
     return redirect(url_for('login'))
 
+    #elif request.method == 'POST':
+        # Form is empty... (no POST data)
+     #   msg = 'Please fill out the form!'
+    # Show registration form with message (if any)
+    #return render_template('following.html', msg=msg)
+
   cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
-  cnx.cursor()
+  cursor = cnx.cursor()
   cursor.execute('SELECT * FROM people WHERE playerID = %s', (playerid,))
   test = cursor.fetchall()
   cnx.close()
+
   
   if not test:
     return redirect(url_for('search-player'))  # ---> redirect to search players if player id passed into url has no route 
 
   cnx = connect(host="usersrv01.cs.virginia.edu", user="ss9ae_c", passwd=users['ss9ae_c'], database="ss9ae")
+  cursor = cnx.cursor()
   cursor.execute('SELECT * FROM people WHERE playerID = %s', (playerid,))
   people_headers = [desc[0] for desc in cursor.description]
   people_info = cursor.fetchall()
@@ -542,6 +658,119 @@ def player(playerid):
   appearances_info = cursor.fetchall()
   cnx.close()
 
+  msg = ''
+  # Check if "username", "password" and "email" POST requests exist (user submitted form)
+  if request.method == 'POST' and 'player' in request.form:
+  	if request.form.get("followsubmit"):
+  		player = request.form['player']
+  		cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
+  		cursor = cnx.cursor()
+
+  		#cursor.execute('SELECT playerID FROM people')
+  		#allplayers = cursor.fetchall()
+  		#allplayers2 = list(itertools.chain(*allplayers))
+
+  		#if player in allplayers2:
+  		cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
+  		entries = cursor.fetchall()
+  		cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
+  		followplayers = cursor.fetchall()
+  		followplayers2 = list(itertools.chain(*followplayers))
+
+  		if player in followplayers2:
+  			msg = 'You already follow this player!'
+  			return render_template('player.html',
+									player=playerid,
+	                              people=people_info, people_headers=people_headers,
+	                              pitch=pitch_info, pitch_headers=pitch_headers,
+	                              batting=batting_info, batting_headers=batting_headers,
+	                              fielding=fielding_info, fielding_headers=fielding_headers,
+	                              allstarfull=allstarfull_info, allstarfull_headers=allstarfull_headers,
+	                              halloffame=halloffame_info, halloffame_headers=halloffame_headers,
+	                              battingpost=battingpost_info, battingpost_headers=battingpost_headers,
+	                              pitchingpost=pitchingpost_info, pitchingpost_headers=pitchingpost_headers,
+	                              awardsplayers=awardsplayers_info, awardsplayers_headers=awardsplayers_headers,
+	                              fieldingpost=fieldingpost_info, fieldingpost_headers=fieldingpost_headers,
+	                              appearances=appearances_info, appearances_headers=appearances_headers,
+	                              pitchlen=range(len(pitch_headers)),
+	                              battinglen=range(len(batting_headers)),
+	                              fieldinglen=range(len(fielding_headers)),
+	                              allstarlen=range(len(allstarfull_headers)),
+	                              halloffamelen=range(len(halloffame_headers)),
+	                              battingpostlen=range(len(battingpost_headers)),
+	                              pitchingpostlen=range(len(pitchingpost_headers)),
+	                              awardslen=range(len(awardsplayers_headers)),
+	                              fieldingpostlen=range(len(fieldingpost_headers)),
+	                              appearanceslen=range(len(appearances_headers)),
+	                              peoplelen=range(len(people_headers)),
+	                              msg = msg
+	                              )
+  		else:
+  			if len(entries) == 1 and entries[0][1] == '':
+  				cursor.execute('UPDATE following SET ID = %s, Player_Following = %s WHERE ID = %s', (int(session['id']), player, int(session['id'])))
+  			else:
+  				cursor.execute('INSERT INTO following VALUES (%s, %s)', (int(session['id']), player,))
+  				msg = 'You have successfully followed!'
+
+  		cnx.commit()
+  		cnx.close()
+  		msg = 'You have successfully followed!'
+
+  	elif request.form.get("unfollowsubmit"):
+  		player = request.form['player']
+  		cnx = connect(host='usersrv01.cs.virginia.edu', user='ss9ae_c', password=users['ss9ae_c'], database="ss9ae",  auth_plugin='mysql_native_password')
+  		cursor = cnx.cursor()
+  		
+  		#cursor.execute('SELECT playerID FROM people')
+  		#allplayers = cursor.fetchall()
+  		#allplayers2 = list(itertools.chain(*allplayers))
+
+  		#Condition to make sure player exists in the database
+  		#if player in allplayers2:
+  		#cursor.execute('SELECT * FROM following WHERE ID = %s', (int(session['id']),))
+  		#entries = cursor.fetchall()
+
+  		cursor.execute('SELECT Player_Following FROM following WHERE ID = %s', (int(session['id']),))
+  		followplayers = cursor.fetchall()
+  		followplayers2 = list(itertools.chain(*followplayers))
+
+  		#If you don't follow this player, an error message is printed]
+  		if player not in followplayers2:
+  			msg = 'You do not follow this player yet so you cannot unfollow him'
+  			return render_template('player.html',
+  										player=playerid,
+			                              people=people_info, people_headers=people_headers,
+			                              pitch=pitch_info, pitch_headers=pitch_headers,
+			                              batting=batting_info, batting_headers=batting_headers,
+			                              fielding=fielding_info, fielding_headers=fielding_headers,
+			                              allstarfull=allstarfull_info, allstarfull_headers=allstarfull_headers,
+			                              halloffame=halloffame_info, halloffame_headers=halloffame_headers,
+			                              battingpost=battingpost_info, battingpost_headers=battingpost_headers,
+			                              pitchingpost=pitchingpost_info, pitchingpost_headers=pitchingpost_headers,
+			                              awardsplayers=awardsplayers_info, awardsplayers_headers=awardsplayers_headers,
+			                              fieldingpost=fieldingpost_info, fieldingpost_headers=fieldingpost_headers,
+			                              appearances=appearances_info, appearances_headers=appearances_headers,
+			                              pitchlen=range(len(pitch_headers)),
+			                              battinglen=range(len(batting_headers)),
+			                              fieldinglen=range(len(fielding_headers)),
+			                              allstarlen=range(len(allstarfull_headers)),
+			                              halloffamelen=range(len(halloffame_headers)),
+			                              battingpostlen=range(len(battingpost_headers)),
+			                              pitchingpostlen=range(len(pitchingpost_headers)),
+			                              awardslen=range(len(awardsplayers_headers)),
+			                              fieldingpostlen=range(len(fieldingpost_headers)),
+			                              appearanceslen=range(len(appearances_headers)),
+			                              peoplelen=range(len(people_headers)),
+			                              msg = msg
+			                              )
+  		else:
+  			cursor.execute( 'DELETE FROM following WHERE ID = %s and Player_Following = %s', (int(session['id']), player))
+  			msg = 'You have successfully unfollowed!'
+
+  		cnx.commit()
+  		cnx.close()
+  		msg = 'You have successfully unfollowed!'	
+    
   return render_template('player.html',
       player=playerid, fn = test[0][13], ln = test[0][14],
       people=people_info, people_headers=people_headers,
@@ -566,6 +795,7 @@ def player(playerid):
       fieldingpostlen=range(len(fieldingpost_headers)),
       appearanceslen=range(len(appearances_headers)),
       peoplelen=range(len(people_headers)),
+      msg = msg
       )
 
 

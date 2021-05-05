@@ -126,5 +126,20 @@
 					</tr>
 				</table>
 		<p align="center"><a href=/editprofile ><button class=grey style="height:30px;width:180px;background-color: white;"><b>Edit profile</b></button></a></p>
+			</div>
+
+			<div>
+				<p>Your follows are below:</p>
+				<table>
+					{% for name in follows%}
+					<tr>
+						<td><a href="http://127.0.0.1:5000/player/{{name}}">{{name}}</a></td>
+					</tr>
+					{%endfor%}
+				</table>
+			</div>
+
+		</div>
+		<p align="center"><a href=/editprofile ><button class=grey style="height:30px;width:180px;background-color: white;"><b>Edit profile</b></button></a></p>
 	</body>
 </html>
