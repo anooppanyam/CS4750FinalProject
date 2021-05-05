@@ -689,8 +689,8 @@ def search_player():
   if orderby is None or orderby == 'None' or orderby == '':
     orderby = 'playerID'
   
-  print(orderby)
-  print(table)
+
+
   if orderby is not None and orderby != 'None':
     if (table == 'Pitching') and orderby not in ['Full_Name',	'playerID',	'TotalW',	'TotalGS',	'TotalSV',	'TotalSHO',	'TotalIPOuts',	'AvgERA',	'AvgBAOpp',	'AvgIP',	'AvgK_9',	'AvgBB_9',	'AvgK_BB',	'AvgKpct',	'BBpct',	'HR_9',	'AvgBA',	'AvgWHIP',	'AvgBABIP']:
       context = dict(message='Unable to order by invalid column name!') 
