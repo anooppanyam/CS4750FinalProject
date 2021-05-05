@@ -6,3 +6,5 @@ class EditAccountForm(FlaskForm):
     password = StringField('Password')
     email = StringField('Email')
     submit = SubmitField('Save changes')
+
+

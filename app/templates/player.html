@@ -115,9 +115,20 @@
   <div style="text-align: center;">
     <h1 style="font-size: xxx-large; margin-top: 30px; margin-bottom: 20px; font-weight:normal"><b style="font-size: xxx-large;">{{fn}} {{ln}} ({{player}})</b></h1>
 </div>
-            
+            <p>{{msg}}</p>
+    <form action="{{ url_for('player', playerid=player) }}" method="post" autocomplete="off">
+                <label for="player">
+                    <i class="fas fa-user"></i>
+                </label>
+                <input type="checkbox" id="player" name="player" value="{{player}}">
+                <label for="player">{{player}}</label><br>
+                <input type="submit" name="followsubmit" value="Follow!">
+                <input type="submit" name="unfollowsubmit" value="Unfollow">
+            </form>
+  
     {% if people %}
     <h2 style="text-align: center; font-size: x-large;">People</h2>
+
     <div class="row" style="background-color: white; height: 900"> 
 <div class="scrollmenu">
   <table style="margin: auto; width: 50%; height: 50%; padding: 10px;">  
