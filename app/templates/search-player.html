@@ -87,6 +87,8 @@
 
         
     <div class="navbar">
+        <a href="/logout/" style="float: right;">Logout</a>
+        <a href="/profile/">Profile</a>
         <div class="dropdown" style="float: left;">
           <button class="dropbtn">All Data
           </button>
@@ -119,49 +121,29 @@
     <div class="row1" style="background-color: white; padding-left: 590; height: 150">
        <form method="get" action="/search-player">
             <div style="height: 40">
-                <label for="table" style="color: black">Choose a table:</label>
+                <label for="table" style="color: black"><b>Search within</b></label>
                 <input type="radio" id="table" name="table" value="Pitching">
                 <label for="Pitching" style="color: black">Pitching</label>
                 <input type="radio" id="table" name="table" value="Batting">
                 <label for="Batting" style="color: black">Batting</label>
             </div>
             <div style="height: 40">
-                <label for="query" style="color: black">Search player here:</label>
+                <label for="query" style="color: black"><b>Name</b></label>
                 <input name="query" type="text" value="{{ query }}">
             </div>
             <div style="height: 40">
-                <label for="orderby" style="color: black">Order Here: </label>
+                <label for="orderby" style="color: black"><b>Order by</b></label>
                 <input name="orderby" type="text" value="{{ orderby }}">  
             </div>
             <input class="btn btn-danger" type="submit" value="Submit">
             </form>
     </div>
-	    
+    <div class="row1" style="background-color: white; text-align: center; padding-top: 20;">
+	    <div class="row" style="color: black;">
+	        <h2 class="center" style="font-size: 25">{{table}}</h1>
+	    </div>
+    </div>
 	</div>
-
-    <!-- <div class="row">
-        <table class="table">
-            <thead class="thead-dark">
-                <tr>
-                    <th></th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Team</th>
-                    <th scope="col">BA</th>
-                    <th scope="col">ERA</th>
-                    <th scope="col">Avg Sal</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for n in data %}
-                <tr>
-                    <td>{{ n['Full_Name']}}</td>
-                    <td>{{ n['Last_TeamID'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div> -->
     {%if data%}
     <div class="row" style="background-color: white; height: 500"> 
     <div class="scrollmenu">
@@ -192,8 +174,8 @@
     </div>
     {%endif%}
     {% if message%}
-    <div class="row" style="background-color: black; height: 200"> 
-        <p style="color: white">{{message}}</p>
+    <div class="row" style="height: 200; text-align: center;"> 
+        <p style="font-weight: bold; font-size: x-large;">{{message}}</p>
     </div>
     {%endif%}
 </div>
